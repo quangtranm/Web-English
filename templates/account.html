@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài Khoản - LingoCards</title>
+    {% include '_head_fonts.html' %}
+    <style>
+        /* ─── RESET & BASE ────────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background: #F1F5F9;
+            color: #1e293b;
+            position: relative;
+            overflow-x: hidden;
+            padding: 1rem;
+        }
+
+        /* ─── VARIABLES ───────────────────────────────────── */
+        :root {
+            --primary: #0D9488;
+            --secondary: #14B8A6;
+            --gradient: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
+            --text-dark: #111827;
+            --text-gray: #4B5563;
+            --border: #E5E7EB;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow-card: 0 25px 50px -12px rgba(13, 148, 136, 0.1);
+        }
+
+        /* ─── CONTAINER (SHELL) ───────────────────────────── */
+        .shell {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-card);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── LEFT PANEL (BRANDING & INFO) ───────────────── */
+        .panel-left {
+            background: var(--gradient);
+            /* Default background */
+            background-size: cover;
+            background-position: center;
+            padding: 3rem 2.5rem;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            transition: background-image 0.5s ease-in-out;
+        }
+
+        /* Overlay để đảm bảo chữ luôn đọc được dù nền sáng hay tối */
+        .panel-left::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            /* Lớp phủ tối */
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Decorative pattern (disabled by default when custom image is used via JS class, but good for gradient) */
+        .panel-left::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.4;
+            transform: rotate(15deg);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            z-index: 2;
+            position: relative;
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .brand-text h2 {
+            font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            line-height: 1.2;
+            color: white;
+        }
+
+        .brand-text p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            font-weight: 500;
+        }
+
+        .intro-content {
+            z-index: 2;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        .intro-content h1 {
+            font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .intro-content p {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .stat-badges {
+            display: flex;
+            gap: 1rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .badge {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.8rem 1.2rem;
+            border-radius: 12px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge i {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .badge div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .badge strong {
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .badge span {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        /* ─── BACKGROUND SETTINGS BUTTON ──────────────────── */
+        .bg-settings-btn {
+            position: absolute;
+            top: 2.5rem;
+            right: 2.5rem;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(4px);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bg-settings-btn:hover {
+            background: white;
+            color: var(--primary);
+            transform: rotate(90deg);
+        }
+
+        /* ─── BACKGROUND MODAL ─────────────────────────────── */
+        .bg-modal {
+            position: absolute;
+            top: 80px;
+            right: 2.5rem;
+            width: 280px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            z-index: 20;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .bg-modal.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .bg-modal h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bg-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .bg-option {
+            height: 60px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .bg-option:hover {
+            transform: scale(1.05);
+        }
+
+        .bg-option.selected {
+            border-color: var(--primary);
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            font-size: 0.85rem;
+            color: var(--text-gray);
+        }
+
+        .upload-area:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .upload-area input {
+            display: none;
+        }
+
+        /* ─── RIGHT PANEL (FORM) ──────────────────────────── */
+        .panel-right {
+            padding: 3.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+            position: relative;
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+        }
+
+        .user-identity {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .user-identity i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+
+        .user-identity h2 {
+            font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .user-identity span {
+            color: var(--text-gray);
+            font-size: 0.9rem;
+            display: block;
+            margin-top: 2px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 1.25rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        .input-group i.icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+            transition: color 0.3s;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 45px 14px 45px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            border: 2px solid #f1f5f9;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .form-control:hover {
+            border-color: #e2e8f0;
+            background: white;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
+        }
+
+        .form-control:focus~i.icon {
+            color: var(--primary);
+        }
+
+        .toggle-pwd {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 5px;
+            transition: color 0.3s;
+        }
+
+        .toggle-pwd:hover {
+            color: var(--text-dark);
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: none;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: var(--gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(13, 148, 136, 0.35);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #ef4444;
+            border: 1.5px solid #fee2e2;
+            margin-top: 1.5rem;
+        }
+
+        .btn-outline:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+            color: #dc2626;
+        }
+
+        /* Toast Notification */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 100;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-left: 4px solid var(--primary);
+        }
+
+        .toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .toast i {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        /* Links */
+        .action-links {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .link {
+            color: var(--text-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .link:hover {
+            color: var(--primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .shell {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .panel-left {
+                display: none;
+            }
+
+            .panel-right {
+                padding: 2rem;
+            }
+
+            .action-links {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="shell">
+
+        <!-- Left Panel: Branding & Info -->
+        <section class="panel-left" id="leftPanel">
+            <!-- Background Settings Button -->
+            <button class="bg-settings-btn" onclick="toggleBgModal()" title="Đổi hình nền">
+                <i class="fa-solid fa-image"></i>
+            </button>
+
+            <!-- Background Picker Modal -->
+            <div class="bg-modal" id="bgModal">
+                <h3>Giao diện <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleBgModal()"></i></h3>
+
+                <div class="bg-grid">
+                    <!-- Option 1: Default Gradient -->
+                    <div class="bg-option selected"
+                        style="background: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);"
+                        onclick="changeBg('default', this)"></div>
+                    <!-- Option 2: Ocean Blue -->
+                    <div class="bg-option" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);"
+                        onclick="changeBg('gradient2', this)"></div>
+                    <!-- Option 3: Sunset -->
+                    <div class="bg-option" style="background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);"
+                        onclick="changeBg('gradient3', this)"></div>
+                    <!-- Option 4: Forest -->
+                    <div class="bg-option" style="background: linear-gradient(135deg, #065f46 0%, #34d399 100%);"
+                        onclick="changeBg('gradient4', this)"></div>
+                </div>
+
+                <label class="upload-area">
+                    <i class="fa-solid fa-cloud-arrow-up"></i><br>
+                    Tải ảnh của bạn
+                    <input type="file" accept="image/*" onchange="handleFileUpload(this)">
+                </label>
+            </div>
+
+            <a href="#" class="brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>LingoCards</h2>
+                    <p>Học từ vựng thông minh</p>
+                </div>
+            </a>
+
+            <div class="intro-content">
+                <h1>Quản lý<br>tài khoản.</h1>
+                <p>
+                    Giữ an toàn cho dữ liệu học tập của bạn. Đừng chia sẻ mật khẩu với bất kỳ ai.
+                    Bạn có thể cập nhật mật khẩu mới ở phía bên phải.
+                </p>
+            </div>
+
+            <div class="stat-badges">
+                <div class="badge">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <div>
+                        <strong>Bảo mật</strong>
+                        <span>Mã hóa dữ liệu</span>
+                    </div>
+                </div>
+                <div class="badge">
+                    <i class="fa-solid fa-database"></i>
+                    <div>
+                        <strong>Backup</strong>
+                        <span>Tự động đồng bộ</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Form -->
+        <section class="panel-right">
+            <div class="form-header">
+                <div class="user-identity">
+                    <i class="fa-solid fa-circle-user"></i>
+                    <div>
+                        <h2>NguyenVanA</h2> <!-- Username placeholder -->
+                        <span>Thành viên chính thức</span>
+                    </div>
+                </div>
+                <p style="color: var(--text-gray); font-size: 0.9rem; margin-top: 0.5rem;">
+                    Cập nhật thông tin bảo mật tài khoản.
+                </p>
+            </div>
+
+            <!-- Mock Alert (for demo) -->
+            <div id="demoAlert" style="display:none;" class="alert alert-success">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>Mật khẩu đã được cập nhật thành công!</span>
+            </div>
+
+
+            <style>
+                .alert {
+                    padding: 12px 16px;
+                    border-radius: 12px;
+                    font-size: 0.9rem;
+                    margin-bottom: 1.5rem;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    animation: slideDown 0.4s ease-out;
+                    background: #f0fdf4;
+                    color: #166534;
+                    border: 1px solid #bbf7d0;
+                }
+
+                @keyframes slideDown {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            </style>
+
+            <form method="POST" action="#"
+                onsubmit="event.preventDefault(); document.getElementById('demoAlert').style.display='flex';">
+                <div class="form-group">
+                    <label class="form-label" for="current_password">Mật khẩu hiện tại</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-lock icon"></i>
+                        <input id="current_password" type="password" name="current_password" class="form-control"
+                            placeholder="Nhập mật khẩu hiện tại..." required autocomplete="current-password">
+                        <button type="button" class="toggle-pwd" onclick="togglePassword('current_password')"><i
+                                class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="new_password">Mật khẩu mới</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-key icon"></i>
+                        <input id="new_password" type="password" name="new_password" class="form-control"
+                            placeholder="Nhập mật khẩu mới..." required autocomplete="new-password">
+                        <button type="button" class="toggle-pwd" onclick="togglePassword('new_password')"><i
+                                class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirm_password">Xác nhận mật khẩu mới</label>
+                    <div class="input-group">
+                        <i class="fa-solid fa-check-double icon"></i>
+                        <input id="confirm_password" type="password" name="confirm_password" class="form-control"
+                            placeholder="Nhập lại mật khẩu mới..." required autocomplete="new-password">
+                        <button type="button" class="toggle-pwd" onclick="togglePassword('confirm_password')"><i
+                                class="fa-regular fa-eye"></i></button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-rotate"></i> Cập nhật mật khẩu
+                </button>
+            </form>
+
+            <button onclick="showToast('Đã đăng xuất')" class="btn btn-outline">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng xuất
+            </button>
+
+            <div class="action-links">
+                <a href="#" class="link"><i class="fa-solid fa-house"></i> Trang chủ</a>
+                <a href="#" class="link"><i class="fa-solid fa-graduation-cap"></i> Quay lại học tập</a>
+                <a href="mailto:support@lingocards.com" class="link">Trợ giúp <i
+                        class="fa-regular fa-circle-question"></i></a>
+            </div>
+        </section>
+    </div>
+
+    <!-- Toast Notification Element -->
+    <div id="toast" class="toast">
+        <i class="fa-solid fa-circle-info"></i>
+        <span id="toastMsg">Thông báo</span>
+    </div>
+
+    <script>
+        // ─── PASSWORD TOGGLE ────────────────────────────────────────
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const btn = input.nextElementSibling;
+            const icon = btn.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+                icon.style.color = 'var(--primary)';
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+                icon.style.color = '';
+            }
+        }
+
+        // ─── BACKGROUND CHANGER LOGIC ────────────────────────────────
+        const leftPanel = document.getElementById('leftPanel');
+        const bgModal = document.getElementById('bgModal');
+        const defaultGradient = 'linear-gradient(135deg, #0D9488 0%, #0F766E 100%)';
+
+        function toggleBgModal() {
+            bgModal.classList.toggle('active');
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!leftPanel.contains(e.target)) {
+                bgModal.classList.remove('active');
+            }
+        });
+
+        function changeBg(src, element) {
+            // Remove selected class from all options
+            document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('selected'));
+            // Add selected to clicked
+            element.classList.add('selected');
+
+            if (src === 'default') {
+                // Reset to gradient
+                leftPanel.style.backgroundImage = '';
+                leftPanel.style.background = defaultGradient;
+                showToast('Đã đặt lại hình nền mặc định');
+            } else {
+                // Set image URL
+                leftPanel.style.background = `url('${src}')`;
+                leftPanel.style.backgroundSize = 'cover';
+                leftPanel.style.backgroundPosition = 'center';
+                showToast('Đã thay đổi hình nền');
+            }
+            // Close modal automatically
+            setTimeout(() => bgModal.classList.remove('active'), 300);
+        }
+
+        function handleFileUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // Apply uploaded image
+                    leftPanel.style.background = `url('${e.target.result}')`;
+                    leftPanel.style.backgroundSize = 'cover';
+                    leftPanel.style.backgroundPosition = 'center';
+
+                    // Deselect presets
+                    document.querySelectorAll('.bg-option').forEach(opt => opt.classList.remove('selected'));
+
+                    showToast('Đã tải lên hình nền của bạn');
+                    bgModal.classList.remove('active');
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // ─── TOAST NOTIFICATION ─────────────────────────────────────
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+
+            toastMsg.innerText = message;
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

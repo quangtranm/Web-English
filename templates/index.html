@@ -1,0 +1,2036 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LingoCards — Master English Daily</title>
+  <meta name="description" content="LingoCards — học từ vựng tiếng Anh qua flashcard và quiz tương tác.">
+  {% include '_head_fonts.html' %}
+
+  <style>
+    /* ─── 1. DESIGN TOKENS & RESET ─────────────────────────── */
+    :root {
+      --primary: #0D9488;
+      --secondary: #14B8A6;
+      --gradient: linear-gradient(135deg, #0D9488 0%, #0F766E 100%);
+      --bg-body: #f1f5f9;
+      --surface: rgba(255, 255, 255, 0.95);
+      --surface-hover: #ffffff;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+      --shadow-glow: 0 4px 20px rgba(13, 148, 136, 0.25);
+      --radius: 20px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --sidebar-w: 280px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-body);
+      color: var(--text-main);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      font-family: 'Be Vietnam Pro', 'Be Vietnam Pro', 'Plus Jakarta Sans', sans-serif;
+      color: var(--text-main);
+    }
+
+    button {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    ul {
+      list-style: none;
+    }
+
+    /* ─── 2. LAYOUT & BACKGROUND ─────────────────────────── */
+    .app-layout {
+      display: flex;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .bg-mesh span {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(100px);
+      opacity: 0.5;
+      animation: float 10s infinite alternate;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      100% {
+        transform: translate(30px, 40px) scale(1.1);
+      }
+    }
+
+    .bg-mesh span:nth-child(1) {
+      width: 500px;
+      height: 500px;
+      top: -100px;
+      left: -100px;
+      background: radial-gradient(circle, rgba(13, 148, 136, 0.1) 0%, transparent 70%);
+    }
+
+    .bg-mesh span:nth-child(2) {
+      width: 400px;
+      height: 400px;
+      bottom: -50px;
+      right: -50px;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+      animation-delay: -5s;
+    }
+
+    /* ─── 3. SIDEBAR ────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 2.5rem 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      z-index: 50;
+    }
+
+    .side-logo {
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+
+    .side-logo h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      color: var(--text-main);
+    }
+
+    .logo-icon {
+      background: var(--gradient);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+
+    .side-tagline {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-tags {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .sidebar-tag {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-radius: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .sidebar-tag i {
+      width: 20px;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+
+    .sidebar-tag:hover {
+      background: rgba(13, 148, 136, 0.08);
+      color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .sidebar-tag.active {
+      background: var(--gradient);
+      color: white;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .sidebar-tag.active i {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+    }
+
+    .sidebar-user-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.85rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: white;
+      color: var(--text-main);
+      font-weight: 600;
+      transition: var(--transition);
+      width: 100%;
+    }
+
+    .sidebar-user-btn:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-sm);
+      transform: translateY(-2px);
+    }
+
+    .user-avatar-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: var(--gradient);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+    }
+
+    /* ─── 4. MAIN CONTENT AREA ───────────────────────────── */
+    .main-content {
+      flex: 1;
+      padding: 3rem 3.5rem;
+      overflow-y: auto;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .section-header {
+      margin-bottom: 2.5rem;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .section-header p {
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 160px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary);
+    }
+
+    .stat-value {
+      font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: var(--gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 0.5rem;
+    }
+
+    .tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* Tile style for Groups (Bigger) */
+    .tile-group {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      height: 100%;
+      min-height: 200px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tile-group:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-glow);
+      background: white;
+    }
+
+    .tile-group-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: rgba(13, 148, 136, 0.1);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: var(--transition);
+    }
+
+    .tile-group:hover .tile-group-icon {
+      background: var(--gradient);
+      color: white;
+      transform: rotate(-5deg) scale(1.1);
+    }
+
+    .tile-group-title {
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      line-height: 1.2;
+    }
+
+    .tile-group-count {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .tile-group-arrow {
+      margin-top: auto;
+      align-self: flex-end;
+      color: var(--primary);
+      opacity: 0;
+      transform: translateX(-10px);
+      transition: var(--transition);
+    }
+
+    .tile-group:hover .tile-group-arrow {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Regular Tile style (for Categories/Lessons) */
+    .tile {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 180px;
+      height: auto;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tile:hover {
+      transform: translateY(-5px);
+      border-color: var(--primary);
+      box-shadow: var(--shadow-glow);
+    }
+
+    .tile-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(13, 148, 136, 0.1);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      transition: var(--transition);
+    }
+
+    .tile:hover .tile-icon {
+      background: var(--gradient);
+      color: white;
+      transform: rotate(-5deg);
+    }
+
+    .tile-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text-main);
+      margin-bottom: 0.25rem;
+    }
+
+    .tile-count {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .action-bar {
+      background: var(--surface);
+      padding: 2rem;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      margin-top: 2rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      animation: slideUp 0.4s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .action-title {
+      font-size: 1.5rem;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+      font-weight: 800;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.9rem 1.8rem;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: var(--transition);
+      font-size: 0.95rem;
+    }
+
+    .btn-primary {
+      background: var(--gradient);
+      color: white;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(13, 148, 136, 0.35);
+    }
+
+    .btn-secondary {
+      background: white;
+      border: 1.5px solid var(--border);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+
+    /* ─── 5. GRAMMAR VIEWS ───────────────────────────────── */
+
+    /* 5.1 Grammar Groups (Main List of Tenses) */
+    .groups-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* 5.2 Grammar Lesson List (Inside a Group) */
+    .lesson-list-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .lesson-list-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    /* 5.3 Grammar Lesson Detail */
+    .grammar-lesson-container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 3rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .lesson-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .lesson-content h3 {
+      font-size: 1.5rem;
+      color: var(--primary);
+      margin: 2rem 0 1rem 0;
+    }
+
+    .lesson-content p {
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    .lesson-content ul {
+      list-style: disc;
+      padding-left: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-muted);
+    }
+
+    .lesson-content li {
+      margin-bottom: 0.5rem;
+    }
+
+    .formula-box {
+      background: #f8fafc;
+      border-left: 4px solid var(--primary);
+      padding: 1.5rem;
+      border-radius: 0 12px 12px 0;
+      font-family: monospace;
+      font-size: 1.1rem;
+      color: var(--text-main);
+      margin: 1.5rem 0;
+    }
+
+    .formula-label {
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: var(--text-muted);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .example-card {
+      background: #eff6ff;
+      border: 1px solid #dbeafe;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.8rem;
+      font-style: italic;
+      display: flex;
+      gap: 0.8rem;
+    }
+
+    .example-card i {
+      color: #3b82f6;
+      margin-top: 4px;
+    }
+
+    /* ─── 6. FLASHCARD MODULE ─────────────────────────────── */
+    .flashcard-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      perspective: 1200px;
+    }
+
+    .flashcard-top-nav {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+    }
+
+    .btn-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: white;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+
+    .btn-icon:hover {
+      background: var(--gradient);
+      color: white;
+      border-color: transparent;
+      transform: translateY(-2px);
+    }
+
+    .flashcard-scene {
+      width: 100%;
+      max-width: 520px;
+      height: 360px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .flashcard.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: var(--radius);
+      background: white;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2.5rem;
+      text-align: center;
+    }
+
+    .card-face.card-front {
+      z-index: 2;
+    }
+
+    .card-face.card-back {
+      transform: rotateY(180deg);
+      background: #f8fafc;
+    }
+
+    .word-main {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+    }
+
+    .word-phonetic {
+      color: var(--text-muted);
+      font-family: 'Inter', monospace;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .word-meaning {
+      font-size: 2.2rem;
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .word-example {
+      font-style: italic;
+      color: var(--text-main);
+      margin-top: 2rem;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .word-example::before {
+      content: '"';
+      color: var(--primary);
+      font-size: 3rem;
+      position: absolute;
+      top: -15px;
+      left: -25px;
+      opacity: 0.3;
+      font-family: 'Plus Jakarta Sans';
+    }
+
+    .card-hint {
+      position: absolute;
+      bottom: 1.5rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .flashcard-nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .card-counter {
+      font-weight: 700;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ─── 7. QUIZ MODULE ──────────────────────────────────── */
+    .quiz-container {
+      max-width: 720px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .quiz-header {
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quiz-score-pill {
+      background: var(--gradient);
+      color: #fff;
+      padding: 0.5rem 1.2rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .quiz-card-area {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3.5rem 2rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .quiz-word-display {
+      margin-bottom: 3rem;
+    }
+
+    .quiz-word {
+      font-size: 2.8rem;
+      font-weight: 800;
+      display: inline-block;
+      color: var(--text-main);
+    }
+
+    .btn-sound-sm {
+      color: var(--primary);
+      font-size: 1.4rem;
+      margin-left: 1rem;
+      cursor: pointer;
+      vertical-align: middle;
+      transition: transform 0.2s;
+    }
+
+    .btn-sound-sm:hover {
+      transform: scale(1.1);
+    }
+
+    .quiz-options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+
+    .quiz-option {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      padding: 1.4rem;
+      border-radius: 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--primary);
+      background: #eff6ff;
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .quiz-option.correct {
+      background: #CCFBF1;
+      border-color: #0D9488;
+      color: #0F766E;
+    }
+
+    .quiz-option.wrong {
+      background: #fee2e2;
+      border-color: #ef4444;
+      color: #b91c1c;
+    }
+
+    /* ─── 8. ACCOUNT MODAL ───────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-box {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      border-radius: var(--radius);
+      padding: 0;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(20px);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 2rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .modal-header h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .modal-header p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .close-modal {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 0.2s;
+      background: #f1f5f9;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-modal:hover {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .account-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 1rem 0.5rem;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-weight: 600;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.3s;
+    }
+
+    .tab-btn:hover {
+      color: var(--primary);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: var(--gradient);
+    }
+
+    .tab-content {
+      padding: 2rem 2.5rem;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .profile-avatar-wrap {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .profile-avatar-wrap input[type="file"] {
+      display: none;
+    }
+
+    .profile-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2.5px solid var(--border);
+      transition: border-color 0.3s;
+    }
+
+    .profile-avatar-wrap:hover .profile-avatar {
+      border-color: var(--primary);
+    }
+
+    .avatar-overlay {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.25s;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .profile-avatar-wrap:hover .avatar-overlay {
+      opacity: 1;
+    }
+
+    .profile-info h4 {
+      font-size: 1.1rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .profile-info span {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9rem;
+    }
+
+    .info-row span:first-child {
+      color: var(--text-muted);
+    }
+
+    .info-row span:last-child {
+      font-weight: 600;
+    }
+
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .setting-btn {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: white;
+      color: var(--text-main);
+      font-weight: 500;
+      transition: var(--transition);
+    }
+
+    .setting-btn:hover {
+      border-color: var(--primary);
+      background: #f8fafc;
+    }
+
+    .setting-btn i {
+      color: var(--primary);
+      width: 20px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      background: #fff;
+      padding: 1rem 1.5rem;
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      border-left: 4px solid var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast.show {
+      transform: translateX(0);
+    }
+
+    .toast i {
+      color: var(--primary);
+      font-size: 1.2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .app-layout {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 1rem;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-tags {
+        flex-direction: row;
+        gap: 1rem;
+      }
+
+      .side-logo h1 {
+        font-size: 1.2rem;
+      }
+
+      .side-tagline {
+        display: none;
+      }
+
+      .sidebar-footer {
+        display: none;
+      }
+
+      .main-content {
+        padding: 2rem 1.5rem;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .stats-row {
+        flex-direction: column;
+      }
+
+      .quiz-options-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .word-main {
+        font-size: 2rem;
+      }
+
+      .action-bar {
+        padding: 1.5rem;
+      }
+
+      .grammar-lesson-container {
+        padding: 1.5rem;
+      }
+
+      .lesson-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background Effects -->
+  <div class="bg-mesh" aria-hidden="true"><span></span><span></span></div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <i class="fa-solid fa-circle-check"></i>
+    <span id="toast-msg">Thông báo</span>
+  </div>
+
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="side-logo">
+        <h1>
+          <span class="logo-icon"><i class="fas fa-layer-group"></i></span>
+          <span>Lingo</span><span style="color:var(--primary)">Cards</span>
+        </h1>
+        <p class="side-tagline">Master English Daily</p>
+      </div>
+
+      <nav class="nav-tags">
+        <div class="sidebar-tag active" onclick="switchTab('vocab')" id="nav-vocab">
+          <i class="fa-solid fa-layer-group"></i> Từ vựng
+        </div>
+        <div class="sidebar-tag" onclick="switchTab('grammar')" id="nav-grammar">
+          <i class="fa-solid fa-spell-check"></i> Ngữ pháp
+        </div>
+        <a href="{{ url_for('quiz_topics') }}" class="sidebar-tag">
+          <i class="fa-solid fa-circle-question"></i> Trắc nghiệm
+        </a>
+        {% if session.username == 'admin' %}
+        <a href="{{ url_for('admin') }}" class="sidebar-tag" style="color: var(--primary);">
+          <i class="fa-solid fa-user-shield"></i> Quản trị
+        </a>
+        {% endif %}
+      </nav>
+
+      <div class="sidebar-footer">
+        <button class="sidebar-user-btn" onclick="openAccountModal()">
+          <img id="sidebar-avatar" src="{{ url_for('static', filename='img/default-avatar.svg') }}"
+            class="user-avatar-small" style="object-fit:cover;" alt="Avatar">
+          <span id="user-name-text">{{ user.username if user else 'Tài khoản' }}</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+      <!-- 1. VOCABULARY VIEW -->
+      <section id="view-vocab">
+        <div class="section-header">
+          <h2>Thư viện từ vựng</h2>
+          <p>Lựa chọn chủ đề để bắt đầu hành trình chinh phục ngôn ngữ.</p>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value" id="stat-cats">-</div>
+            <div class="stat-label">Chủ đề</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="stat-words">-</div>
+            <div class="stat-label">Từ vựng</div>
+          </div>
+        </div>
+
+        <!-- List of Categories -->
+        <div class="tiles-grid" id="category-grid">
+          <!-- Generated by JS -->
+        </div>
+
+        <!-- Category Actions (Hidden by default) -->
+        <div class="action-bar hidden" id="category-actions">
+          <h2 class="action-title" id="selected-cat-title">Business English</h2>
+          <div class="btn-group">
+            <button class="btn btn-primary" onclick="startFlashcards()">
+              <i class="fa-solid fa-layer-group"></i> Học Flashcard
+            </button>
+            <button class="btn btn-secondary" onclick="startQuiz()">
+              <i class="fa-solid fa-circle-question"></i> Làm bài Quiz
+            </button>
+            <button class="btn btn-secondary" onclick="showDashboard()">
+              <i class="fa-solid fa-arrow-left"></i> Quay lại
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. GRAMMAR VIEW (GROUPS) -->
+      <section id="view-grammar" class="hidden">
+        <div class="section-header">
+          <h2>Ngữ pháp tiếng Anh</h2>
+          <p>Khám phá và ôn tập các thì và cấu trúc câu quan trọng.</p>
+        </div>
+
+        <!-- Bảng ký hiệu viết tắt -->
+        <div class="grammar-legend"
+          style="margin-bottom: 2rem; display: flex; flex-wrap: wrap; gap: 0.75rem; padding: 1.25rem; background: white; border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-sm);">
+          <div
+            style="font-size: 0.85rem; font-weight: 800; color: var(--primary); text-transform: uppercase; letter-spacing: 0.05em; width: 100%; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-circle-info"></i> Ký hiệu viết tắt
+          </div>
+          <div class="legend-pill"
+            style="padding: 0.4rem 0.8rem; background: #f1f5f9; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+            <b style="color:var(--primary)">S</b>: Subject (Chủ ngữ)
+          </div>
+          <div class="legend-pill"
+            style="padding: 0.4rem 0.8rem; background: #f1f5f9; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+            <b style="color:var(--primary)">V</b>: Verb (Động từ)
+          </div>
+          <div class="legend-pill"
+            style="padding: 0.4rem 0.8rem; background: #f1f5f9; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+            <b style="color:var(--primary)">O</b>: Object (Tân ngữ)
+          </div>
+          <div class="legend-pill"
+            style="padding: 0.4rem 0.8rem; background: #f1f5f9; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+            <b style="color:var(--primary)">adj</b>: Adjective (Tính từ)
+          </div>
+          <div class="legend-pill"
+            style="padding: 0.4rem 0.8rem; background: #f1f5f9; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+            <b style="color:var(--primary)">adv</b>: Adverb (Trạng từ)
+          </div>
+          <div class="legend-pill"
+            style="padding: 0.4rem 0.8rem; background: #f1f5f9; border-radius: 8px; font-size: 0.85rem; font-weight: 600;">
+            <b style="color:var(--primary)">N</b>: Noun (Danh từ)
+          </div>
+        </div>
+
+        <!-- Grid of Groups (Present, Past, Future...) -->
+        <div class="groups-container" id="grammar-groups-container">
+          <!-- Generated by JS -->
+        </div>
+      </section>
+
+      <!-- 2.1. GRAMMAR VIEW (LESSON LIST INSIDE GROUP) -->
+      <section id="view-grammar-list" class="hidden">
+        <div class="lesson-list-header">
+          <button class="btn-icon" onclick="backToGrammarGroups()">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <div>
+            <h2 id="group-title-display" style="font-size: 1.5rem;">Thì Hiện Tại</h2>
+            <span style="font-size: 0.9rem; color: var(--text-muted);">Chọn bài học để xem chi tiết</span>
+          </div>
+        </div>
+
+        <div class="lesson-list-grid" id="grammar-lesson-list-grid">
+          <!-- Generated by JS -->
+        </div>
+      </section>
+
+      <!-- 2.2. GRAMMAR VIEW (LESSON DETAIL) -->
+      <section id="view-grammar-detail" class="hidden">
+        <div class="grammar-lesson-container">
+          <div class="lesson-header">
+            <button class="btn-icon" onclick="backToGrammarList()" style="margin-right: 0.5rem;">
+              <i class="fa-solid fa-arrow-left"></i>
+            </button>
+            <div>
+              <h2 id="lesson-title" style="font-size: 1.5rem; margin-bottom: 0.25rem;">Present Simple</h2>
+              <span style="font-size: 0.85rem; color: var(--text-muted);">Ngữ pháp cơ bản</span>
+            </div>
+          </div>
+
+          <div id="lesson-body" class="lesson-content">
+            <!-- Nội dung bài học sẽ được chèn vào đây bằng JS -->
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. FLASHCARD VIEW -->
+      <section id="view-flashcard" class="hidden">
+        <div class="flashcard-wrapper">
+          <div class="flashcard-top-nav">
+            <button class="btn-icon" onclick="showDashboard()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="card-counter"><span id="fc-current">1</span> / <span id="fc-total">10</span></div>
+            <button class="btn-icon" onclick="speakWord()"><i class="fa-solid fa-volume-high"></i></button>
+          </div>
+
+          <div class="flashcard-scene">
+            <div class="flashcard" id="active-card" onclick="flipCard()">
+              <div class="card-face card-front">
+                <div class="word-main" id="fc-word">...</div>
+                <div class="word-phonetic" id="fc-phonetic">...</div>
+                <div class="card-hint">Nhấn để lật thẻ</div>
+              </div>
+              <div class="card-face card-back">
+                <div class="word-meaning" id="fc-meaning">...</div>
+                <div class="word-example" id="fc-example">...</div>
+                <div class="card-hint">Nhấn để lật lại</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flashcard-nav">
+            <button class="btn btn-secondary" onclick="prevCard()"><i class="fa-solid fa-chevron-left"></i>
+              Trước</button>
+            <button class="btn btn-primary" onclick="nextCard()">Tiếp <i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. QUIZ VIEW -->
+      <section id="view-quiz" class="hidden">
+        <div class="quiz-container">
+          <div class="quiz-header">
+            <button class="btn-icon" onclick="showDashboard()"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="quiz-score-pill">Điểm: <span id="quiz-score">0</span></div>
+          </div>
+
+          <div class="quiz-card-area">
+            <div class="quiz-word-display">
+              <span class="quiz-word" id="qz-word">...</span>
+              <i class="fa-solid fa-volume-high btn-sound-sm" onclick="speakQuizWord()"></i>
+            </div>
+            <div class="quiz-options-grid" id="qz-options">
+              <!-- Options injected by JS -->
+            </div>
+          </div>
+
+          <div style="margin-top: 1.5rem; color: var(--text-muted); font-weight: 600;">
+            Câu hỏi: <span id="qz-progress">1</span>/<span id="qz-total">10</span>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ACCOUNT MODAL -->
+  <div class="modal-overlay" id="account-modal">
+    <div class="modal-box">
+      <div class="close-modal" onclick="closeAccountModal()"><i class="fa-solid fa-xmark"></i></div>
+
+      <!-- USER VIEW -->
+      <div id="user-view">
+        <div class="account-tabs">
+          <button class="tab-btn active" onclick="switchAccountTab('profile')">Hồ sơ</button>
+          <button class="tab-btn" onclick="switchAccountTab('settings')">Cài đặt</button>
+        </div>
+
+        <!-- Tab: Profile -->
+        <div id="tab-profile" class="tab-content">
+          <div class="profile-header">
+            <label class="profile-avatar-wrap" title="Nhấn để đổi ảnh đại diện">
+              <img id="modal-avatar" src="{{ url_for('static', filename='img/default-avatar.svg') }}" class="profile-avatar"
+                alt="User">
+              <div class="avatar-overlay"><i class="fa-solid fa-camera"></i></div>
+              <input type="file" accept="image/*" onchange="handleAvatarUpload(this)">
+            </label>
+            <div class="profile-info">
+              <h4>{{ user.username if user else 'Học viên' }}</h4>
+              <span>Thành viên từ {{ user.created_at.strftime('%Y') if user and user.created_at else '2024' }}</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <span>Tên đăng nhập</span>
+            <span>{{ user.username if user else '...' }}</span>
+          </div>
+          <div class="info-row">
+            <span>Email</span>
+            <span>{{ user.email if user and user.email else 'Chưa cập nhật' }}</span>
+          </div>
+          <button class="btn btn-secondary btn-full" style="margin-top:1.5rem;"
+            onclick="document.querySelector('.profile-avatar-wrap input').click()"><i class="fa-solid fa-camera"
+              style="margin-right:0.4rem;"></i> Đổi ảnh đại diện</button>
+        </div>
+
+        <!-- Tab: Settings -->
+        <div id="tab-settings" class="tab-content hidden">
+          <div class="settings-list">
+            <a href="{{ url_for('account') }}" class="setting-btn">
+              <i class="fa-solid fa-user-gear"></i>
+              <span>Cài đặt tài khoản</span>
+            </a>
+            <a href="{{ url_for('logout') }}" class="setting-btn" style="border-color: #fee2e2; color: #ef4444;">
+              <i class="fa-solid fa-right-from-bracket" style="color:#ef4444;"></i>
+              <span>Đăng xuất</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const liveCategoryIcons = [
+      'fa-layer-group',
+      'fa-book-open',
+      'fa-comments',
+      'fa-graduation-cap',
+      'fa-earth-asia',
+      'fa-lightbulb'
+    ];
+
+    // Configuration for Grammar Groups
+    const grammarGroupConfig = {
+      'present': {
+        title: 'Thì Hiện Tại',
+        icon: 'fa-sun',
+        color: '#10b981',
+        desc: 'Các thì diễn tả sự việc xảy ra ở hiện tại.'
+      },
+      'past': {
+        title: 'Thì Quá Khứ',
+        icon: 'fa-clock-rotate-left',
+        color: '#f59e0b',
+        desc: 'Các thì diễn tả sự việc đã xảy ra.'
+      },
+      'future': {
+        title: 'Thì Tương Lai',
+        icon: 'fa-rocket',
+        color: '#6366f1',
+        desc: 'Các thì diễn tả sự việc sẽ xảy ra.'
+      },
+      'conditionals': {
+        title: 'Câu Điều Kiện',
+        icon: 'fa-code-branch',
+        color: '#ec4899',
+        desc: 'Cấu trúc If và các trường hợp.'
+      },
+      'passive': {
+        title: 'Thị Bị Động',
+        icon: 'fa-shield-halved',
+        color: '#64748b',
+        desc: 'Cách đổi câu chủ động sang bị động.'
+      },
+      'other': {
+        title: 'Thì',
+        icon: 'fa-shapes',
+        color: '#0D9488',
+        desc: 'Các chủ điểm ngữ pháp khác.'
+      }
+    };
+
+    // ─── STATE ───────────────────────────────────────────────
+    let state = {
+      currentTab: 'vocab',
+      activeCategory: null,
+      activeGrammarGroup: null,
+      cardIndex: 0,
+      quizScore: 0,
+      quizIndex: 0,
+      categories: [],
+      vocabularyByCategory: {},
+      grammarTopics: [],
+      grammarGroupsMap: {},
+      shuffledQuizWords: []
+    };
+
+    // ─── INIT ─────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      Promise.all([loadCategoriesLive(), loadGrammarTopicsLive()]).catch(error => {
+        console.error(error);
+        showToast('Không thể đồng bộ dữ liệu mới.', 'error');
+      });
+    });
+
+    // ─── API FUNCTIONS ───────────────────────────────────────
+    async function loadCategoriesLive() {
+      const response = await fetch('/api/categories');
+      state.categories = await response.json();
+      renderCategories();
+      updateStatsLive();
+    }
+
+    async function loadGrammarTopicsLive() {
+      const response = await fetch('/api/grammar');
+      state.grammarTopics = await response.json();
+      processGrammarGroups();
+      renderGrammarGroups();
+    }
+
+    async function loadCategoryWords(categoryId) {
+      if (state.vocabularyByCategory[categoryId]) {
+        return state.vocabularyByCategory[categoryId];
+      }
+
+      const response = await fetch(`/api/vocabulary?category_id=${categoryId}&per_page=100`);
+      const payload = await response.json();
+      const list = (payload.data || []).map(item => ({
+        w: item.word,
+        p: item.pronunciation || 'Đang cập nhật',
+        m: item.meaning,
+        e: item.example || 'Chưa có ví dụ cho mục này.'
+      }));
+
+      state.vocabularyByCategory[categoryId] = list;
+      return list;
+    }
+
+    // ─── GRAMMAR GROUPING LOGIC ─────────────────────────────
+    function processGrammarGroups() {
+      const groups = {
+        'present': [], 'past': [], 'future': [],
+        'conditionals': [], 'passive': [], 'other': []
+      };
+
+      state.grammarTopics.forEach(topic => {
+        const title = topic.title.toLowerCase();
+        let assigned = false;
+
+        if (title.includes('present')) { groups.present.push(topic); assigned = true; }
+        else if (title.includes('past')) { groups.past.push(topic); assigned = true; }
+        else if (title.includes('future')) { groups.future.push(topic); assigned = true; }
+        else if (title.includes('conditional') || title.includes('if')) { groups.conditionals.push(topic); assigned = true; }
+        else if (title.includes('passive') || title.includes('bị động')) { groups.passive.push(topic); assigned = true; }
+
+        if (!assigned) groups.other.push(topic);
+      });
+
+      state.grammarGroupsMap = groups;
+    }
+
+    // ─── RENDER FUNCTIONS ─────────────────────────────────────
+    function updateStatsLive() {
+      document.getElementById('stat-cats').innerText = state.categories.length;
+      const totalWords = state.categories.reduce((sum, item) => sum + (item.count || 0), 0);
+      document.getElementById('stat-words').innerText = totalWords;
+    }
+
+    function escapeHtmlLive(value) {
+      return String(value || '')
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;');
+    }
+
+    function renderCategories() {
+      const grid = document.getElementById('category-grid');
+      if (!state.categories.length) {
+        grid.innerHTML = `
+          <div class="tile" style="grid-column: 1 / -1; height: auto; cursor: default;">
+            <div>
+              <div class="tile-title">Chưa có chủ đề từ vựng</div>
+              <div class="tile-count">Hãy thêm dữ liệu ở trang admin để bắt đầu học.</div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = state.categories.map((category, index) => `
+        <div class="tile" onclick="selectCategory(${category.id})">
+          <div>
+            <div class="tile-icon">
+              <i class="fa-solid ${liveCategoryIcons[index % liveCategoryIcons.length]}"></i>
+            </div>
+            <div class="tile-title">${escapeHtmlLive(category.name)}</div>
+            <div class="tile-count">${category.count || 0} từ vựng</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderGrammarGroups() {
+      const container = document.getElementById('grammar-groups-container');
+      const map = state.grammarGroupsMap;
+
+      let html = '';
+      for (const [key, lessons] of Object.entries(map)) {
+        if (lessons.length === 0) continue;
+
+        const config = grammarGroupConfig[key];
+        html += `
+          <div class="tile-group" onclick="openGrammarGroup('${key}')">
+            <div class="tile-group-icon" style="color: ${config.color}; background: ${config.color}20;">
+              <i class="fa-solid ${config.icon}"></i>
+            </div>
+            <div class="tile-group-title">${config.title}</div>
+            <div class="tile-group-count">${lessons.length} bài học</div>
+            <div class="tile-group-arrow">
+              <i class="fa-solid fa-arrow-right"></i>
+            </div>
+          </div>
+        `;
+      }
+
+      if (html === '') {
+        html = `<div style="grid-column: 1/-1; text-align:center; padding: 2rem; color: var(--text-muted);">Chưa có dữ liệu ngữ pháp.</div>`;
+      }
+
+      container.innerHTML = html;
+    }
+
+    function renderGrammarLessonsList(groupKey) {
+      const grid = document.getElementById('grammar-lesson-list-grid');
+      const lessons = state.grammarGroupsMap[groupKey] || [];
+      const config = grammarGroupConfig[groupKey];
+
+      document.getElementById('group-title-display').innerText = config.title;
+
+      if (!lessons.length) {
+        grid.innerHTML = `<div>Trống</div>`;
+        return;
+      }
+
+      grid.innerHTML = lessons.map(topic => `
+        <div class="tile" onclick="openGrammarLesson(${topic.id})">
+          <div>
+            <div class="tile-icon" style="color: ${config.color}; background: ${config.color}15;">
+              <i class="fa-solid fa-book-open"></i>
+            </div>
+            <div class="tile-title">${escapeHtmlLive(topic.title)}</div>
+            <div class="tile-count">${escapeHtmlLive(topic.description || 'Bài học cơ bản')}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ─── NAVIGATION LOGIC ─────────────────────────────────────
+    function switchTab(tab) {
+      if (['vocab', 'grammar'].includes(tab)) {
+        state.currentTab = tab;
+        document.querySelectorAll('.sidebar-tag').forEach(t => t.classList.remove('active'));
+        const navId = `nav-${tab}`;
+        const navEl = document.getElementById(navId);
+        if (navEl) navEl.classList.add('active');
+
+        if (tab === 'vocab') {
+          document.getElementById('view-vocab').classList.remove('hidden');
+          document.getElementById('view-grammar').classList.add('hidden');
+          document.getElementById('view-grammar-list').classList.add('hidden');
+          document.getElementById('view-grammar-detail').classList.add('hidden');
+          showDashboard();
+        } else {
+          document.getElementById('view-vocab').classList.add('hidden');
+          document.getElementById('view-grammar').classList.remove('hidden');
+          document.getElementById('view-grammar-list').classList.add('hidden');
+          document.getElementById('view-grammar-detail').classList.add('hidden');
+        }
+      }
+    }
+
+    function openGrammarGroup(groupKey) {
+      state.activeGrammarGroup = groupKey;
+      renderGrammarLessonsList(groupKey);
+
+      document.getElementById('view-grammar').classList.add('hidden');
+      document.getElementById('view-grammar-list').classList.remove('hidden');
+    }
+
+    function backToGrammarGroups() {
+      document.getElementById('view-grammar-list').classList.add('hidden');
+      document.getElementById('view-grammar').classList.remove('hidden');
+    }
+
+    async function selectCategory(id) {
+      state.activeCategory = id;
+      const category = state.categories.find(item => item.id === id);
+      document.getElementById('selected-cat-title').innerText = category?.name || 'Chủ đề';
+      document.getElementById('category-grid').classList.add('hidden');
+      document.getElementById('category-actions').classList.remove('hidden');
+
+      try {
+        const words = await loadCategoryWords(id);
+        if (!words.length) showToast('Chủ đề này chưa có từ vựng để học.', 'error');
+      } catch (error) {
+        console.error(error);
+        showToast('Không thể tải dữ liệu chủ đề này.', 'error');
+      }
+    }
+
+    function showDashboard() {
+      document.getElementById('category-grid').classList.remove('hidden');
+      document.getElementById('category-actions').classList.add('hidden');
+      document.getElementById('view-flashcard').classList.add('hidden');
+      document.getElementById('view-quiz').classList.add('hidden');
+      document.getElementById('view-vocab').classList.remove('hidden');
+    }
+
+    // ─── GRAMMAR LESSON LOGIC ────────────────────────────────
+    function openGrammarLesson(id) {
+      const lesson = state.grammarTopics.find(t => t.id === id);
+      if (!lesson) return showToast('Không tìm thấy bài học.', 'error');
+
+      document.getElementById('lesson-title').innerText = lesson.title;
+
+      let html = `<p style="font-size: 1.1rem; color: var(--text-muted); margin-bottom: 2rem; line-height: 1.6;">${escapeHtmlLive(lesson.description)}</p>`;
+      if (lesson.content) {
+        html += `<div class="lesson-detail-content">${lesson.content}</div>`;
+      } else {
+        html += `<p style="color:var(--text-muted); text-align: center; padding: 2rem; background: #f8fafc; border-radius: 12px; border: 1px dashed var(--border);">Nội dung chi tiết đang được cập nhật.</p>`;
+      }
+
+      document.getElementById('lesson-body').innerHTML = html;
+
+      document.getElementById('view-grammar-list').classList.add('hidden');
+      document.getElementById('view-grammar-detail').classList.remove('hidden');
+    }
+
+    function backToGrammarList() {
+      document.getElementById('view-grammar-detail').classList.add('hidden');
+      document.getElementById('view-grammar-list').classList.remove('hidden');
+    }
+
+    // ─── FLASHCARD LOGIC ─────────────────────────────────────
+    async function startFlashcards() {
+      const list = await loadCategoryWords(state.activeCategory);
+      if (!list.length) return showToast('Chủ đề này đang cập nhật dữ liệu.', 'error');
+
+      state.cardIndex = 0;
+      document.getElementById('fc-total').innerText = list.length;
+      document.getElementById('view-vocab').classList.add('hidden');
+      document.getElementById('view-flashcard').classList.remove('hidden');
+      updateCard();
+    }
+
+    function updateCard() {
+      const list = state.vocabularyByCategory[state.activeCategory] || [];
+      const item = list[state.cardIndex];
+      if (!item) return;
+
+      const card = document.getElementById('active-card');
+      card.classList.remove('is-flipped');
+
+      setTimeout(() => {
+        document.getElementById('fc-word').innerText = item.w;
+        document.getElementById('fc-phonetic').innerText = item.p;
+        document.getElementById('fc-meaning').innerText = item.m;
+        document.getElementById('fc-example').innerText = item.e;
+        document.getElementById('fc-current').innerText = state.cardIndex + 1;
+      }, 200);
+    }
+
+    function flipCard() {
+      document.getElementById('active-card').classList.toggle('is-flipped');
+    }
+
+    function nextCard() {
+      const list = state.vocabularyByCategory[state.activeCategory] || [];
+      if (state.cardIndex < list.length - 1) {
+        state.cardIndex++;
+        updateCard();
+      } else {
+        showToast('Bạn đã học xong chủ đề này.', 'success');
+      }
+    }
+
+    function prevCard() {
+      if (state.cardIndex > 0) {
+        state.cardIndex--;
+        updateCard();
+      }
+    }
+
+    function speakWord() {
+      const list = state.vocabularyByCategory[state.activeCategory] || [];
+      const text = list[state.cardIndex]?.w;
+      if (!text) return;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // ─── QUIZ LOGIC ───────────────────────────────────────────
+    async function startQuiz() {
+      const list = await loadCategoryWords(state.activeCategory);
+      if (list.length < 4) return showToast('Cần ít nhất 4 từ để làm quiz.', 'error');
+
+      state.shuffledQuizWords = [...list].sort(() => Math.random() - 0.5);
+      state.quizIndex = 0;
+      state.quizScore = 0;
+      document.getElementById('view-vocab').classList.add('hidden');
+      document.getElementById('view-quiz').classList.remove('hidden');
+      loadQuizQuestion();
+    }
+
+    function loadQuizQuestion() {
+      const shuffledList = state.shuffledQuizWords;
+      const currentWord = shuffledList[state.quizIndex];
+      if (!currentWord) return;
+
+      const fullList = state.vocabularyByCategory[state.activeCategory] || [];
+      const options = [currentWord.m];
+
+      let attempts = 0;
+      while (options.length < 4 && attempts < 50) {
+        attempts++;
+        const random = fullList[Math.floor(Math.random() * fullList.length)]?.m;
+        if (random && !options.includes(random)) options.push(random);
+      }
+
+      options.sort(() => Math.random() - 0.5);
+
+      document.getElementById('qz-word').innerText = currentWord.w;
+      document.getElementById('qz-progress').innerText = state.quizIndex + 1;
+      document.getElementById('qz-total').innerText = shuffledList.length;
+      document.getElementById('quiz-score').innerText = state.quizScore;
+
+      const optContainer = document.getElementById('qz-options');
+      optContainer.innerHTML = '';
+      options.forEach(option => {
+        const div = document.createElement('div');
+        div.className = 'quiz-option';
+        div.innerText = option;
+        div.onclick = () => checkAnswer(div, option, currentWord.m);
+        optContainer.appendChild(div);
+      });
+    }
+
+    function checkAnswer(el, selected, correct) {
+      if (el.classList.contains('correct') || el.classList.contains('wrong')) return;
+
+      const cleanSelected = selected.trim().toLowerCase();
+      const cleanCorrect = correct.trim().toLowerCase();
+
+      const allOptions = document.querySelectorAll('.quiz-option');
+
+      if (cleanSelected === cleanCorrect) {
+        el.classList.add('correct');
+        state.quizScore++;
+        document.getElementById('quiz-score').innerText = state.quizScore;
+      } else {
+        el.classList.add('wrong');
+        showToast(`Chính xác là: ${correct}`, 'error');
+        allOptions.forEach(opt => {
+          if (opt.innerText.trim().toLowerCase() === cleanCorrect) {
+            opt.classList.add('correct');
+          }
+        });
+      }
+
+      allOptions.forEach(opt => opt.style.pointerEvents = 'none');
+
+      setTimeout(() => {
+        const shuffledList = state.shuffledQuizWords;
+        if (state.quizIndex < shuffledList.length - 1) {
+          state.quizIndex++;
+          loadQuizQuestion();
+        } else {
+          showToast(`Hoàn thành quiz: ${state.quizScore}/${shuffledList.length} câu đúng.`, 'success');
+          showDashboard();
+        }
+      }, 1500);
+    }
+
+    function speakQuizWord() {
+      const text = document.getElementById('qz-word').innerText;
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-US';
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // ─── ACCOUNT MODAL LOGIC ───────────────────────────────
+    function openAccountModal() {
+      document.getElementById('account-modal').classList.add('active');
+    }
+
+    function closeAccountModal() {
+      document.getElementById('account-modal').classList.remove('active');
+    }
+
+    function switchAccountTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      const buttons = document.querySelectorAll('.tab-btn');
+      if (tabName === 'profile') buttons[0].classList.add('active');
+      if (tabName === 'settings') buttons[1].classList.add('active');
+    }
+
+    // ─── UTILS ───────────────────────────────────────────────
+    function showToast(msg, type = 'success') {
+      const toast = document.getElementById('toast');
+      const text = document.getElementById('toast-msg');
+      text.innerText = msg;
+
+      if (type === 'error') {
+        toast.style.borderLeftColor = '#ef4444';
+        toast.querySelector('i').className = 'fa-solid fa-circle-exclamation';
+        toast.querySelector('i').style.color = '#ef4444';
+      } else {
+        toast.style.borderLeftColor = '#10b981';
+        toast.querySelector('i').className = 'fa-solid fa-circle-check';
+        toast.querySelector('i').style.color = '#10b981';
+      }
+
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Close modal on click outside
+    document.getElementById('account-modal').addEventListener('click', (e) => {
+      if (e.target.id === 'account-modal') closeAccountModal();
+    });
+
+    // ─── AVATAR UPLOAD LOGIC ──────────────────────────────────
+    function handleAvatarUpload(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      if (file.size > 2 * 1024 * 1024) {
+        showToast('Ảnh quá lớn (tối đa 2MB)', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const dataUrl = e.target.result;
+        document.getElementById('modal-avatar').src = dataUrl;
+        const sidebarAvatar = document.getElementById('sidebar-avatar');
+        sidebarAvatar.src = dataUrl;
+        try { localStorage.setItem('lc_avatar_{{ user.username if user else "" }}', dataUrl); } catch (ex) { }
+        showToast('Đã cập nhật ảnh đại diện!');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Restore avatar from localStorage on load
+    (function () {
+      const savedAvatar = localStorage.getItem('lc_avatar_{{ user.username if user else "" }}');
+      if (savedAvatar) {
+        const modal = document.getElementById('modal-avatar');
+        const sidebar = document.getElementById('sidebar-avatar');
+        if (modal) modal.src = savedAvatar;
+        if (sidebar) sidebar.src = savedAvatar;
+      }
+    })();
+
+  </script>
+</body>
+
+</html>

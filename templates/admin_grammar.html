@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Management — LingoCards Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% include '_admin_styles.html' %}
+    {% include '_head_fonts.html' %}
+</head>
+<body>
+
+<button class="mob-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+{% include '_admin_sidebar.html' %}
+
+<main class="main">
+    <header class="top-bar">
+        <h2><i class="fa-solid fa-spell-check" style="color: var(--primary)"></i> Grammar Lessons</h2>
+        <div style="display: flex; gap: 1rem;">
+            <button class="btn btn-primary" onclick="openAddModal()"><i class="fa-solid fa-plus"></i> New Lesson</button>
+        </div>
+    </header>
+
+    <div class="content-area">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}"><i class="fa-solid fa-circle-info"></i> {{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Quick Import -->
+        <div class="card" style="margin-bottom: 2.5rem;">
+            <div class="card-header">
+                <div class="card-icon icon-s"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                <div class="card-title">
+                    <h3>Batch Import Grammar</h3>
+                    <p>Paste your content using the standard separator (|)</p>
+                </div>
+            </div>
+            <form action="/admin/import_grammar" method="POST">
+                <div class="form-group">
+                    <textarea name="grammar_text" class="form-input" rows="5" placeholder="| # | Title | Formula | Example | Note |"></textarea>
+                </div>
+                <button type="submit" class="btn btn-ghost" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> Process Content
+                </button>
+            </form>
+        </div>
+
+        <!-- Lessons Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">Grammar Curriculum <span class="badge-count">{{ grammar_topics|length }}</span></div>
+                <input type="text" class="form-input" placeholder="Search lessons..." style="width: 300px;" id="gSearch" oninput="filterGrammar()">
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 60px;">Order</th>
+                        <th>Lesson Title</th>
+                        <th>Description</th>
+                        <th>Level</th>
+                        <th style="width: 120px; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="gBody">
+                    {% for topic in grammar_topics %}
+                    <tr class="g-row">
+                        <td style="font-weight: 800; color: var(--text-faint);">{{ topic.sort_order }}</td>
+                        <td>
+                            <div style="font-weight: 800; color: var(--text-main);">{{ topic.title }}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-faint);">ID: #{{ topic.id }}</div>
+                        </td>
+                        <td style="color: var(--text-secondary); max-width: 400px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ topic.description }}</td>
+                        <td><span class="badge badge-primary">{{ topic.level }}</span></td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                <button class="action-btn btn-edit" onclick="openEditModal({{ topic.id }}, '{{ topic.title|e }}', '{{ topic.description|e }}', '{{ topic.level }}', '{{ topic.sort_order }}')"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <a href="/admin/delete_grammar_topic/{{ topic.id }}" class="action-btn btn-del" onclick="return confirm('Delete this lesson?')"><i class="fa-solid fa-trash-can"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- Modal: Add/Edit Lesson -->
+<div class="modal-overlay" id="gModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">New Grammar Lesson</h3>
+            <button class="action-btn" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form id="gForm" method="POST">
+            <input type="hidden" name="id" id="e_id">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Lesson Title</label>
+                    <input type="text" name="title" id="e_title" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Short Description</label>
+                    <input type="text" name="description" id="e_description" class="form-input" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label>Level</label>
+                        <select name="level" id="e_level" class="form-input">
+                            <option value="Core">Core</option>
+                            <option value="Basic">Basic</option>
+                            <option value="Intermediate">Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Sort Order</label>
+                        <input type="number" name="sort_order" id="e_sort_order" class="form-input" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Content (HTML Support)</label>
+                    <textarea name="content" id="e_content" class="form-input" rows="10"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Lesson</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open');
+    }
+
+    function filterGrammar() {
+        const q = document.getElementById('gSearch').value.toLowerCase();
+        document.querySelectorAll('.g-row').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function openAddModal() {
+        document.getElementById('modalTitle').textContent = 'New Grammar Lesson';
+        document.getElementById('gForm').action = '/admin/add_grammar_topic';
+        document.getElementById('e_id').value = '';
+        document.getElementById('gForm').reset();
+        document.getElementById('gModal').classList.add('open');
+    }
+
+    function openEditModal(id, title, desc, level, order) {
+        document.getElementById('modalTitle').textContent = 'Edit Grammar Lesson';
+        document.getElementById('gForm').action = '/admin/edit_grammar_topic';
+        document.getElementById('e_id').value = id;
+        document.getElementById('e_title').value = title;
+        document.getElementById('e_description').value = desc;
+        document.getElementById('e_level').value = level;
+        document.getElementById('e_sort_order').value = order;
+        document.getElementById('gModal').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('gModal').classList.remove('open');
+    }
+
+    window.onclick = function(e) {
+        if (e.target.id == 'gModal') closeModal();
+    }
+</script>
+
+</body>
+</html>

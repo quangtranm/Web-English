@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả trắc nghiệm - LingoCards</title>    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% include '_head_fonts.html' %}
+
+    <style>
+        :root {
+            --primary: #0D9488;
+            --primary-dark: #0F766E;
+            --primary-lighter: #F0FDFA;
+            --secondary: #14B8A6;
+            --gradient-primary: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);
+            --shadow-primary: 0 10px 25px rgba(13, 148, 136, 0.2);
+            --surface: #ffffff;
+            --border: #E5E7EB;
+            --border-light: #F3F4F6;
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --text-muted: #9CA3AF;
+            --bg-secondary: #F9FAFB;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --radius-2xl: 28px;
+            --radius-3xl: 36px;
+            --radius-full: 9999px;
+            --transition-base: 0.2s ease;
+            --transition-smooth: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            --success: #059669;
+            --gradient-success: linear-gradient(135deg, #059669 0%, #10B981 100%);
+            --danger: #DC2626;
+            --gradient-danger: linear-gradient(135deg, #DC2626 0%, #EF4444 100%);
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            background: #F3F4F6;
+        }
+
+        .results-container {
+            width: 100%;
+            max-width: 900px;
+            animation: slideInUp 0.6s var(--transition-smooth);
+        }
+
+        .score-card {
+            background: var(--surface);
+            border-radius: var(--radius-3xl);
+            box-shadow: var(--shadow-lg);
+            padding: 3.5rem 2.5rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .score-icon {
+            width: 120px;
+            height: 120px;
+            border-radius: var(--radius-full);
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3.5rem;
+            color: white;
+            box-shadow: var(--shadow-primary);
+            animation: scaleIn 0.6s var(--transition-smooth);
+        }
+
+        .score-icon.excellent {
+            background: var(--gradient-success);
+        }
+
+        .score-icon.good {
+            background: linear-gradient(135deg, #0D9488, #14B8A6);
+        }
+
+        .score-icon.poor {
+            background: var(--gradient-danger);
+        }
+
+        .score-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .score-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+        }
+
+        .score-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-box {
+            padding: 1.75rem 1rem;
+            border-radius: var(--radius-lg);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-light);
+            transition: all var(--transition-smooth);
+        }
+
+        .stat-box:hover {
+            background: var(--surface);
+            border-color: var(--primary-lighter);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1.25rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .btn {
+            padding: 1rem 2.25rem;
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all var(--transition-base);
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: white;
+            box-shadow: var(--shadow-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(13, 148, 136, 0.25);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--primary);
+            border: 2px solid var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .wrong-answers-section {
+            background: var(--surface);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-lg);
+            padding: 2.5rem;
+        }
+
+        .wrong-answers-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 1.75rem;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .wrong-answers-title i {
+            color: var(--danger);
+        }
+
+        .wrong-answer-item {
+            padding: 1.75rem;
+            border-radius: var(--radius-lg);
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.05), rgba(220, 38, 38, 0.02));
+            border: 2px solid rgba(220, 38, 38, 0.1);
+            margin-bottom: 1.25rem;
+            transition: all var(--transition-smooth);
+        }
+
+        .wrong-answer-item:hover {
+            border-color: rgba(220, 38, 38, 0.3);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+        }
+
+        .wrong-answer-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .wrong-question {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .wrong-details {
+            font-size: 0.95rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .wrong-details strong {
+            color: var(--text-primary);
+        }
+
+        .correct-answer {
+            color: var(--success);
+            font-weight: 700;
+        }
+
+        .your-answer {
+            color: var(--danger);
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .score-card {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .score-title {
+                font-size: 2rem;
+            }
+
+            .score-stats {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .wrong-answers-section {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="results-container">
+        <div class="score-card">
+            <div class="score-icon" id="score-icon">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h1 class="score-title">Kết quả trắc nghiệm</h1>
+            <p class="score-subtitle" id="score-message">Bạn đã hoàn thành bài kiểm tra!</p>
+
+            <div class="score-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="score-display">0</div>
+                    <div class="stat-label">Đúng</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="total-display">0</div>
+                    <div class="stat-label">Tổng số câu</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="percentage-display">0%</div>
+                    <div class="stat-label">Tỷ lệ đúng</div>
+                </div>
+            </div>
+
+            <div class="action-buttons">
+                <a href="/quiz/topics" class="btn btn-primary">
+                    <i class="fa-solid fa-rotate"></i>
+                    Làm bài mới
+                </a>
+                <button class="btn btn-secondary" id="review-wrong-btn" style="display: none;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    Ôn lại câu sai
+                </button>
+                <a href="/" class="btn btn-secondary">
+                    <i class="fa-solid fa-house"></i>
+                    Trang chủ
+                </a>
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    Về trang học
+                </a>
+            </div>
+        </div>
+
+        <div class="wrong-answers-section" id="wrong-section" style="display: none;">
+            <h2 class="wrong-answers-title">
+                <i class="fa-solid fa-circle-exclamation" style="color: var(--accent-red);"></i>
+                Câu trả lời sai
+            </h2>
+            <div id="wrong-answers-list">
+                <!-- Wrong answers will be listed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get params
+        const params = new URLSearchParams(window.location.search);
+        const score = parseInt(params.get('score')) || 0;
+        const total = parseInt(params.get('total')) || 0;
+        let wrongAnswers = [];
+
+        try {
+            wrongAnswers = JSON.parse(params.get('wrong') || '[]');
+        } catch (e) {
+            wrongAnswers = [];
+        }
+
+        // Update displays
+        document.getElementById('score-display').textContent = score;
+        document.getElementById('total-display').textContent = total;
+        const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+        document.getElementById('percentage-display').textContent = percentage + '%';
+
+        // Score icon and message
+        const scoreIcon = document.getElementById('score-icon');
+        const scoreMessage = document.getElementById('score-message');
+
+        if (percentage >= 80) {
+            scoreIcon.classList.add('excellent');
+            scoreMessage.textContent = 'Xuất sắc! Bạn nắm rất vững kiến thức!';
+        } else if (percentage >= 60) {
+            scoreIcon.classList.add('good');
+            scoreMessage.textContent = 'Tốt! Tiếp tục phát huy nhé!';
+        } else {
+            scoreIcon.classList.add('poor');
+            scoreMessage.textContent = 'Cần ôn tập thêm. Đừng lo, hãy thử lại!';
+        }
+
+        // Show wrong answers section
+        if (wrongAnswers.length > 0) {
+            document.getElementById('review-wrong-btn').style.display = 'inline-flex';
+            document.getElementById('wrong-section').style.display = 'block';
+
+            const wrongList = document.getElementById('wrong-answers-list');
+            wrongAnswers.forEach(wa => {
+                const item = document.createElement('div');
+                item.className = 'wrong-answer-item';
+                item.innerHTML = `
+                    <div class="wrong-question">${wa.question.question_text}</div>
+                    <div class="wrong-details">
+                        <p><span class="your-answer">Bạn chọn: ${wa.selected}</span> - ${getOptionText(wa.question, wa.selected)}</p>
+                        <p><span class="correct-answer">Đáp án đúng: ${wa.correct}</span> - ${getOptionText(wa.question, wa.correct)}</p>
+                        ${wa.question.explanation ? `<p style="margin-top: 0.5rem;"><strong>Giải thích:</strong> ${wa.question.explanation}</p>` : ''}
+                    </div>
+                `;
+                wrongList.appendChild(item);
+            });
+        }
+
+        function getOptionText(question, letter) {
+            const map = {
+                'A': question.option_a,
+                'B': question.option_b,
+                'C': question.option_c,
+                'D': question.option_d
+            };
+            return map[letter] || '';
+        }
+
+        // Review wrong answers button - go back to quiz with only wrong questions
+        document.getElementById('review-wrong-btn').addEventListener('click', () => {
+            if (wrongAnswers.length > 0) {
+                // Store wrong answers in sessionStorage and redirect to review mode
+                sessionStorage.setItem('wrongAnswers', JSON.stringify(wrongAnswers));
+                window.location.href = '/quiz/review';
+            }
+        });
+    </script>
+</body>
+</html>

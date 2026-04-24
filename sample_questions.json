@@ -1,0 +1,57 @@
+[
+  {
+    "question_text": "What is the correct past tense of 'go'?",
+    "option_a": "Goed",
+    "option_b": "Went",
+    "option_c": "Gone",
+    "option_d": "Going",
+    "correct_option": "B",
+    "explanation": "'Went' là quá khứ của 'go'. Đây là động từ bất quy tắc.",
+    "topic": "Grammar",
+    "level": "Easy"
+  },
+  {
+    "question_text": "Which sentence is correct?",
+    "option_a": "She don't like coffee",
+    "option_b": "She doesn't likes coffee",
+    "option_c": "She doesn't like coffee",
+    "option_d": "She not like coffee",
+    "correct_option": "C",
+    "explanation": "Với chủ ngữ số ít (she/he/it), dùng 'doesn't' + động từ nguyên thể.",
+    "topic": "Grammar",
+    "level": "Medium"
+  },
+  {
+    "question_text": "Choose the correct preposition: 'I'm interested ___ learning English.'",
+    "option_a": "on",
+    "option_b": "at",
+    "option_c": "in",
+    "option_d": "for",
+    "correct_option": "C",
+    "explanation": "'Interested in' là cụm từ cố định, theo sau là V-ing hoặc danh từ.",
+    "topic": "Prepositions",
+    "level": "Easy"
+  },
+  {
+    "question_text": "What does 'ubiquitous' mean?",
+    "option_a": "Rare and uncommon",
+    "option_b": "Present everywhere",
+    "option_c": "Very expensive",
+    "option_d": "Extremely fast",
+    "correct_option": "B",
+    "explanation": "'Ubiquitous' means present, appearing, or found everywhere.",
+    "topic": "Vocabulary",
+    "level": "Hard"
+  },
+  {
+    "question_text": "Identify the correct conditional: 'If I ___ rich, I would travel the world.'",
+    "option_a": "am",
+    "option_b": "was",
+    "option_c": "were",
+    "option_d": "will be",
+    "correct_option": "C",
+    "explanation": "Câu điều kiện loại 2 dùng 'were' cho tất cả chủ ngữ (subjunctive mood).",
+    "topic": "Grammar",
+    "level": "Hard"
+  }
+]

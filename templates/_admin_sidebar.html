@@ -1,0 +1,44 @@
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <a href="/" class="sidebar-brand">
+            <div class="brand-icon"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="brand-text">
+                <h1>LingoCards</h1>
+                <span>Admin Dashboard</span>
+            </div>
+        </a>
+    </div>
+
+    <nav class="sidebar-nav">
+        <div class="nav-label">Management</div>
+        <a href="/admin" class="nav-item {{ 'active' if request.path == '/admin' or request.path == '/admin/' else '' }}">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <span>Vocabulary</span>
+        </a>
+        <a href="/admin/questions" class="nav-item {{ 'active' if request.path == '/admin/questions' else '' }}">
+            <i class="fa-solid fa-circle-question"></i>
+            <span>Questions</span>
+        </a>
+        <a href="/admin/grammar" class="nav-item {{ 'active' if request.path == '/admin/grammar' else '' }}">
+            <i class="fa-solid fa-spell-check"></i>
+            <span>Grammar</span>
+        </a>
+        
+        <div class="nav-label">System</div>
+        <a href="/admin/accounts" class="nav-item {{ 'active' if request.path == '/admin/accounts' else '' }}">
+            <i class="fa-solid fa-users-gear"></i>
+            <span>Accounts</span>
+        </a>
+        <a href="{{ url_for('index') }}" class="nav-item">
+            <i class="fa-solid fa-eye"></i>
+            <span>View Learning Site</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <a href="/admin/logout" class="logout-btn">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            <span>Sign Out</span>
+        </a>
+    </div>
+</aside>

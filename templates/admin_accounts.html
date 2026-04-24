@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Management — LingoCards Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% include '_admin_styles.html' %}
+    {% include '_head_fonts.html' %}
+</head>
+<body>
+
+<button class="mob-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+{% include '_admin_sidebar.html' %}
+
+<main class="main">
+    <header class="top-bar">
+        <h2><i class="fa-solid fa-users-gear" style="color: var(--primary)"></i> User Accounts</h2>
+        <div style="display: flex; gap: 1rem;">
+            <span class="badge badge-primary">Security Level: High</span>
+        </div>
+    </header>
+
+    <div class="content-area">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}"><i class="fa-solid fa-circle-info"></i> {{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Stats Overview -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; margin-bottom: 2.5rem;">
+            <div class="card" style="padding: 1.5rem 2rem;">
+                <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.5rem; letter-spacing: 0.05em;">Total Members</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1;">{{ users|length }}</div>
+                <div style="margin-top: 1rem; font-size: 0.85rem; font-weight: 700; color: var(--primary);">
+                    <i class="fa-solid fa-arrow-trend-up"></i> +{{ new_users_this_month }} new this month
+                </div>
+            </div>
+            
+            <div class="card" style="padding: 1.5rem 2rem; border-left: 4px solid var(--primary);">
+                <div style="font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-faint); margin-bottom: 0.5rem; letter-spacing: 0.05em;">System Administrators</div>
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1;">1</div>
+                <div style="margin-top: 1rem; font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+                    Restricted access protocol
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">Registered Users <span class="badge-count">{{ users|length }}</span></div>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-faint);"></i>
+                    <input type="text" class="form-input" placeholder="Search by name or email..." style="padding-left: 2.75rem; width: 320px;" id="uSearch" oninput="filterUsers()">
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Identity</th>
+                        <th>Email Address</th>
+                        <th>Status</th>
+                        <th>Joined Date</th>
+                        <th style="width: 100px; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="uBody">
+                    {% for user in users %}
+                    <tr class="u-row">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div style="width: 40px; height: 40px; border-radius: 12px; background: {{ 'var(--primary-soft)' if user.username == 'admin' else 'var(--secondary-soft)' }}; color: {{ 'var(--primary)' if user.username == 'admin' else 'var(--secondary)' }}; display: grid; place-items: center; font-weight: 800;">
+                                    {{ user.username[0]|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight: 800; color: var(--text-main);">{{ user.username }}</div>
+                                    <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--text-faint);">{{ 'Super Admin' if user.username == 'admin' else 'Standard User' }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="color: var(--text-secondary); font-weight: 500;">{{ user.email or '—' }}</td>
+                        <td>
+                            {% if user.username == 'admin' %}
+                            <span class="badge badge-primary"><i class="fa-solid fa-shield-halved"></i> Active</span>
+                            {% else %}
+                            <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Verified</span>
+                            {% endif %}
+                        </td>
+                        <td style="color: var(--text-faint); font-weight: 600; font-size: 0.9rem;">
+                            {{ user.created_at.strftime('%b %d, %Y') if user.created_at else 'Legacy' }}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if user.username != 'admin' %}
+                            <button class="action-btn btn-del" onclick="openDeleteModal('{{ user.username }}', {{ user.id }})" title="Delete Account"><i class="fa-solid fa-user-minus"></i></button>
+                            {% else %}
+                            <i class="fa-solid fa-lock" style="color: var(--text-faint);" title="Protected Account"></i>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="deleteModal">
+    <div class="modal" style="max-width: 420px; text-align: center;">
+        <div style="padding: 3rem 2rem 2rem;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: #FEF2F2; color: var(--danger); display: grid; place-items: center; font-size: 1.5rem; margin: 0 auto 1.5rem;">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">Confirm Deletion</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6;">Are you sure you want to permanently remove <strong id="delName" style="color: var(--text-main);"></strong>? This action cannot be reversed.</p>
+        </div>
+        <div class="modal-footer" style="padding: 1.5rem 2rem; background: #fff;">
+            <button class="btn btn-ghost" style="flex: 1; justify-content: center;" onclick="closeModal()">Cancel</button>
+            <form id="delForm" method="POST" style="flex: 1;">
+                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--danger);">Confirm</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open');
+    }
+
+    function filterUsers() {
+        const q = document.getElementById('uSearch').value.toLowerCase();
+        document.querySelectorAll('.u-row').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    }
+
+    function openDeleteModal(name, id) {
+        document.getElementById('delName').textContent = name;
+        document.getElementById('delForm').action = '/admin/delete_user/' + id;
+        document.getElementById('deleteModal').classList.add('open');
+    }
+
+    function closeModal() {
+        document.getElementById('deleteModal').classList.remove('open');
+    }
+
+    window.onclick = function(e) {
+        if (e.target.id == 'deleteModal') closeModal();
+    }
+</script>
+
+</body>
+</html>

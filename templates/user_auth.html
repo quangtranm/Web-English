@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài Khoản - LingoCards</title>
+    <style>
+        :root {
+            --bg: #F2F3F5;
+            --surface: #FFFFFF;
+            --surface-alt: #F8F9FB;
+            --accent: #0D9488;
+            --accent-dark: #0F766E;
+            --accent-light: #CCFBF1;
+            --accent-mid: rgba(13, 148, 136, 0.1);
+            --accent-glow: rgba(13, 148, 136, 0.18);
+            --green: #059669;
+            --green-light: #D1FAE5;
+            --green-mid: rgba(5, 150, 105, 0.1);
+            --red: #DC2626;
+            --red-light: #FEE2E2;
+            --red-mid: rgba(220, 38, 38, 0.08);
+            --indigo: #6366F1;
+            --indigo-mid: rgba(99, 102, 241, 0.1);
+            --text: #111827;
+            --text-sub: #374151;
+            --text-muted: #9CA3AF;
+            --text-faint: #D1D5DB;
+            --border: #E5E7EB;
+            --border-hover: #D1D5DB;
+            --r-xs: 8px;
+            --r-sm: 12px;
+            --r-md: 16px;
+            --r-lg: 20px;
+            --r-xl: 28px;
+            --shadow-card: 0 20px 48px rgba(0, 0, 0, 0.08), 0 4px 12px rgba(0, 0, 0, 0.04);
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.06);
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Background ── */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: radial-gradient(circle at 1px 1px, rgba(0, 0, 0, 0.025) 1px, transparent 0);
+            background-size: 28px 28px;
+            pointer-events: none;
+        }
+
+        .bg-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .bg-orb-1 {
+            width: 550px;
+            height: 550px;
+            background: radial-gradient(circle, rgba(13, 148, 136, 0.1), transparent 70%);
+            top: -180px;
+            left: -120px;
+            animation: orbFloat 22s ease-in-out infinite alternate;
+        }
+
+        .bg-orb-2 {
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.07), transparent 70%);
+            bottom: -140px;
+            right: -80px;
+            animation: orbFloat 28s ease-in-out infinite alternate-reverse;
+        }
+
+        .bg-orb-3 {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(13, 148, 136, 0.06), transparent 70%);
+            top: 50%;
+            right: 20%;
+            animation: orbFloat 18s ease-in-out infinite alternate;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(30px, 20px) scale(1.08);
+            }
+
+            100% {
+                transform: translate(-15px, -10px) scale(0.95);
+            }
+        }
+
+        /* ── Auth Shell ── */
+        .auth-shell {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1100px;
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            background: var(--surface);
+            border-radius: var(--r-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            animation: shellReveal 0.7s var(--ease-out) both;
+        }
+
+        @keyframes shellReveal {
+            from {
+                opacity: 0;
+                transform: translateY(28px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── Left Panel ── */
+        .auth-copy {
+            padding: 3rem 2.75rem;
+            background: linear-gradient(160deg, rgba(13, 148, 136, 0.04) 0%, rgba(248, 249, 251, 0.8) 50%, rgba(255, 255, 255, 0.5) 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .auth-copy::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(13, 148, 136, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(13, 148, 136, 0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        .auth-copy::after {
+            content: '';
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            background: radial-gradient(circle, rgba(13, 148, 136, 0.06), transparent 70%);
+            bottom: -80px;
+            right: -60px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Floating vocab */
+        .float-vocab {
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .float-vocab span {
+            display: inline-flex;
+            padding: 0.4rem 0.8rem;
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(13, 148, 136, 0.08);
+            border-radius: 10px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .float-vocab span em {
+            font-style: normal;
+            color: var(--accent);
+            margin-left: 0.35rem;
+            font-weight: 500;
+        }
+
+        .fv-1 {
+            top: 10%;
+            right: 6%;
+            animation: fvDrift1 9s ease-in-out infinite;
+        }
+
+        .fv-2 {
+            top: 52%;
+            right: 4%;
+            animation: fvDrift2 11s ease-in-out infinite;
+        }
+
+        .fv-3 {
+            bottom: 14%;
+            left: 5%;
+            animation: fvDrift3 10s ease-in-out infinite;
+        }
+
+        @keyframes fvDrift1 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(-2deg);
+            }
+
+            50% {
+                transform: translate(-6px, 10px) rotate(1.5deg);
+            }
+        }
+
+        @keyframes fvDrift2 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(1.5deg);
+            }
+
+            50% {
+                transform: translate(8px, -7px) rotate(-3deg);
+            }
+        }
+
+        @keyframes fvDrift3 {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(3deg);
+            }
+
+            50% {
+                transform: translate(-5px, -8px) rotate(-1deg);
+            }
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+            color: var(--text);
+            margin-bottom: 2.2rem;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s var(--ease);
+        }
+
+        .brand:hover {
+            transform: translateX(3px);
+        }
+
+        .brand-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            box-shadow: 0 4px 14px rgba(13, 148, 136, 0.25);
+            color: white;
+            font-size: 1.15rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.18), transparent);
+        }
+
+        .brand-icon .pulse-ring {
+            position: absolute;
+            inset: -3px;
+            border-radius: 17px;
+            border: 2px solid rgba(13, 148, 136, 0.2);
+            animation: pulseRing 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseRing {
+
+            0%,
+            100% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.06);
+            }
+        }
+
+        .brand strong {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .brand small {
+            display: block;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        .auth-copy h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 3.5vw, 3.2rem);
+            line-height: 1.08;
+            margin-bottom: 0.9rem;
+            color: var(--text);
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-copy h1 .highlight {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-copy>p {
+            color: var(--text-muted);
+            max-width: 50ch;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
+            line-height: 1.75;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-list {
+            display: grid;
+            gap: 0.85rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 0.85rem;
+            align-items: flex-start;
+            padding: 0.9rem 1rem;
+            border-radius: var(--r-md);
+            background: rgba(255, 255, 255, 0.65);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(6px);
+            transition: all 0.3s var(--ease);
+            cursor: default;
+        }
+
+        .feature-item:hover {
+            transform: translateX(3px);
+            border-color: rgba(13, 148, 136, 0.15);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.06);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--r-sm);
+            background: var(--accent-mid);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent);
+            font-size: 0.95rem;
+            flex-shrink: 0;
+            transition: all 0.3s var(--ease);
+        }
+
+        .feature-item:hover .feature-icon {
+            background: var(--accent-glow);
+            transform: scale(1.05);
+        }
+
+        .feature-item strong {
+            display: block;
+            margin-bottom: 0.2rem;
+            font-size: 0.88rem;
+            color: var(--text);
+        }
+
+        .feature-item span {
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            line-height: 1.5;
+        }
+
+        /* ── Right Panel ── */
+        .login-panel {
+            background: var(--surface);
+            padding: 3rem 2.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .login-panel::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8%;
+            bottom: 8%;
+            width: 1px;
+            background: linear-gradient(to bottom, transparent, var(--border), transparent);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 370px;
+            position: relative;
+        }
+
+        /* Switch Tabs */
+        .auth-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            background: var(--surface-alt);
+            padding: 4px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+        }
+
+        .switch-link {
+            text-align: center;
+            padding: 0.7rem 1rem;
+            border-radius: 11px;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s var(--ease);
+            position: relative;
+        }
+
+        .switch-link:hover:not(.active) {
+            color: var(--text-sub);
+        }
+
+        .switch-link.active {
+            background: var(--surface);
+            color: var(--accent);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05), 0 0 0 1px var(--border);
+        }
+
+        .login-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 100px;
+            background: var(--accent-mid);
+            color: var(--accent-dark);
+            font-size: 0.76rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            letter-spacing: 0.01em;
+        }
+
+        .login-tag .tag-dot {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: tagDot 2s ease-in-out infinite;
+        }
+
+        @keyframes tagDot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .login-container h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.65rem;
+            font-weight: 800;
+            margin-bottom: 0.35rem;
+            color: var(--text);
+        }
+
+        .login-container>p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1.8rem;
+            line-height: 1.6;
+        }
+
+        /* ── Alert ── */
+        .alert {
+            background: var(--red-mid);
+            border: 1px solid rgba(220, 38, 38, 0.15);
+            color: #B91C1C;
+            padding: 0.75rem 1rem;
+            border-radius: var(--r-sm);
+            margin-bottom: 1.2rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            animation: alertShake 0.45s ease;
+        }
+
+        .alert i {
+            flex-shrink: 0;
+            font-size: 0.95rem;
+        }
+
+        @keyframes alertShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            15% {
+                transform: translateX(-5px);
+            }
+
+            30% {
+                transform: translateX(4px);
+            }
+
+            45% {
+                transform: translateX(-3px);
+            }
+
+            60% {
+                transform: translateX(2px);
+            }
+
+            75% {
+                transform: translateX(-1px);
+            }
+        }
+
+        /* ── Form ── */
+        .form-group {
+            margin-bottom: 1.15rem;
+            text-align: left;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            font-weight: 600;
+            transition: color 0.25s var(--ease);
+        }
+
+        .form-group.focused .form-label {
+            color: var(--accent);
+        }
+
+        .input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-faint);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: color 0.25s var(--ease);
+            z-index: 2;
+        }
+
+        .form-group.focused .input-icon {
+            color: var(--accent);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.78rem 1rem 0.78rem 2.7rem;
+            border-radius: var(--r-sm);
+            border: 2px solid var(--border);
+            background: var(--surface-alt);
+            color: var(--text);
+            font-size: 0.92rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 450;
+            transition: all 0.25s var(--ease);
+        }
+
+        .form-control::placeholder {
+            color: var(--text-faint);
+            font-weight: 400;
+        }
+
+        .form-control:hover {
+            border-color: var(--border-hover);
+            background: var(--surface);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: var(--surface);
+            box-shadow: 0 0 0 4px var(--accent-mid);
+        }
+
+        .form-control.has-toggle {
+            padding-right: 2.8rem;
+        }
+
+        /* Input glow line */
+        .input-glow {
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            border-radius: 2px;
+            transition: all 0.35s var(--ease-out);
+            transform: translateX(-50%);
+            z-index: 3;
+        }
+
+        .form-group.focused .input-glow {
+            width: 75%;
+        }
+
+        /* Password toggle */
+        .pw-toggle {
+            position: absolute;
+            right: 3px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: var(--text-faint);
+            cursor: pointer;
+            border-radius: var(--r-xs);
+            font-size: 0.85rem;
+            transition: all 0.25s var(--ease);
+            z-index: 2;
+        }
+
+        .pw-toggle:hover {
+            background: var(--accent-mid);
+            color: var(--accent);
+        }
+
+        /* ── Submit Button ── */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            border: none;
+            color: white;
+            padding: 0.82rem 1.5rem;
+            border-radius: var(--r-sm);
+            font-size: 0.92rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s var(--ease);
+            box-shadow: 0 4px 16px rgba(13, 148, 136, 0.25);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.55rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), transparent);
+            pointer-events: none;
+        }
+
+        .btn-submit .shimmer {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.15) 45%, rgba(255, 255, 255, 0.15) 55%, transparent 62%);
+            transform: translateX(-100%);
+        }
+
+        .btn-submit:hover .shimmer {
+            animation: btnShimmer 0.7s ease forwards;
+        }
+
+        @keyframes btnShimmer {
+            to {
+                transform: translateX(100%);
+            }
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(13, 148, 136, 0.3);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit i.arrow {
+            transition: transform 0.3s var(--ease);
+            font-size: 0.85rem;
+        }
+
+        .btn-submit:hover i.arrow {
+            transform: translateX(3px);
+        }
+
+        /* Ripple */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(0);
+            animation: rippleAnim 0.55s ease-out;
+            pointer-events: none;
+        }
+
+        @keyframes rippleAnim {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        /* Loading */
+        .btn-submit.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .btn-submit.loading .btn-text {
+            opacity: 0;
+        }
+
+        .btn-submit.loading i.arrow {
+            opacity: 0;
+        }
+
+        .btn-submit .spinner {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2.5px solid rgba(255, 255, 255, 0.25);
+            border-top-color: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: none;
+        }
+
+        .btn-submit.loading .spinner {
+            opacity: 1;
+            animation: spin 0.65s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Divider ── */
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin: 1.4rem 0;
+            color: var(--text-faint);
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+        }
+
+        /* ── Helper Links ── */
+        .helper-links {
+            display: flex;
+            justify-content: center;
+        }
+
+        .back-link {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.84rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            transition: all 0.25s var(--ease);
+            padding: 0.3rem 0.5rem;
+            border-radius: var(--r-xs);
+        }
+
+        .back-link i {
+            font-size: 0.72rem;
+            transition: transform 0.25s var(--ease);
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+        }
+
+        .back-link:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* ── Stagger Animations ── */
+        .login-container>* {
+            animation: fadeUp 0.45s var(--ease-out) both;
+        }
+
+        .login-container>*:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .login-container>*:nth-child(2) {
+            animation-delay: 0.16s;
+        }
+
+        .login-container>*:nth-child(3) {
+            animation-delay: 0.22s;
+        }
+
+        .login-container>*:nth-child(4) {
+            animation-delay: 0.28s;
+        }
+
+        .login-container>*:nth-child(5) {
+            animation-delay: 0.32s;
+        }
+
+        .login-container>*:nth-child(6) {
+            animation-delay: 0.36s;
+        }
+
+        .login-container>*:nth-child(7) {
+            animation-delay: 0.42s;
+        }
+
+        .login-container>*:nth-child(8) {
+            animation-delay: 0.46s;
+        }
+
+        .login-container>*:nth-child(9) {
+            animation-delay: 0.52s;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-copy>* {
+            animation: fadeUp 0.5s var(--ease-out) both;
+        }
+
+        .auth-copy>*:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .auth-copy>*:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .auth-copy>*:nth-child(3) {
+            animation-delay: 0.18s;
+        }
+
+        .auth-copy>*:nth-child(4) {
+            animation-delay: 0.24s;
+        }
+
+        .feature-list .feature-item:nth-child(1) {
+            animation: fadeUp 0.45s 0.3s var(--ease-out) both;
+        }
+
+        .feature-list .feature-item:nth-child(2) {
+            animation: fadeUp 0.45s 0.36s var(--ease-out) both;
+        }
+
+        .feature-list .feature-item:nth-child(3) {
+            animation: fadeUp 0.45s 0.42s var(--ease-out) both;
+        }
+
+        /* ── Mouse Glow ── */
+        .mouse-glow {
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(13, 148, 136, 0.05), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        .login-panel:hover .mouse-glow {
+            opacity: 1;
+        }
+
+        /* ── Kbd Hint ── */
+        .kbd-hint {
+            position: absolute;
+            bottom: 0.75rem;
+            right: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.68rem;
+            color: var(--text-faint);
+            pointer-events: none;
+        }
+
+        .kbd {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.12rem 0.4rem;
+            background: var(--surface-alt);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            min-width: 18px;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .auth-shell {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .auth-copy {
+                padding: 2.25rem 2rem;
+            }
+
+            .login-panel {
+                padding: 2.25rem 2rem;
+            }
+
+            .login-panel::before {
+                display: none;
+            }
+
+            .auth-copy h1 {
+                font-size: 1.8rem;
+            }
+
+            .auth-copy>p {
+                margin-bottom: 1.5rem;
+                font-size: 0.9rem;
+            }
+
+            .float-vocab {
+                display: none;
+            }
+
+            .kbd-hint {
+                display: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .auth-shell {
+                border-radius: var(--r-lg);
+                max-width: 100%;
+            }
+
+            .auth-copy {
+                padding: 1.75rem 1.5rem;
+            }
+
+            .login-panel {
+                padding: 1.75rem 1.5rem;
+            }
+
+            .auth-copy h1 {
+                font-size: 1.55rem;
+            }
+
+            .feature-list {
+                gap: 0.6rem;
+            }
+
+            .feature-item {
+                padding: 0.7rem 0.8rem;
+            }
+
+            .login-container {
+                max-width: 100%;
+            }
+
+            .login-container h2 {
+                font-size: 1.4rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+    {% include '_head_fonts.html' %}
+</head>
+
+<body>
+    <div class="bg-orb bg-orb-1"></div>
+    <div class="bg-orb bg-orb-2"></div>
+    <div class="bg-orb bg-orb-3"></div>
+
+    <div class="auth-shell">
+        <!-- Left Panel -->
+        <section class="auth-copy">
+            <div class="float-vocab fv-1"><span>Resilience<em>· Kiên cường</em></span></div>
+            <div class="float-vocab fv-2"><span>Eloquent<em>· Hùng biện</em></span></div>
+            <div class="float-vocab fv-3"><span>Ephemeral<em>· Phù du</em></span></div>
+
+            <a href="{{ url_for('home') }}" class="brand">
+                <div class="brand-icon">
+                    <span class="pulse-ring"></span>
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div>
+                    <strong>LingoCards</strong>
+                    <small>Kho từ vựng học nhanh</small>
+                </div>
+            </a>
+
+            <h1>Đăng nhập để bắt đầu <span class="highlight">hành trình học</span></h1>
+            <p>
+                Tạo tài khoản user để lưu thông tin đăng nhập, vào trang học và bắt đầu luyện từ vựng
+                với flashcard và quiz trên LingoCards.
+            </p>
+
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-user-plus"></i></div>
+                    <div>
+                        <strong>Tạo tài khoản nhanh</strong>
+                        <span>Đăng ký user mới chỉ với tên đăng nhập và mật khẩu trong vài giây.</span>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+                    <div>
+                        <strong>Bắt đầu học ngay</strong>
+                        <span>Sau khi đăng nhập, chọn chủ đề và luyện tập với flashcard và quiz.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel -->
+        <section class="login-panel">
+            <div class="mouse-glow" id="mouseGlow"></div>
+
+            <div class="login-container">
+                <div class="auth-switch">
+                    <a href="{{ url_for('login') }}"
+                        class="switch-link {% if auth_mode == 'login' %}active{% endif %}">Đăng nhập</a>
+                    <a href="{{ url_for('register') }}"
+                        class="switch-link {% if auth_mode == 'register' %}active{% endif %}">Đăng ký</a>
+                </div>
+
+                <div class="login-tag">
+                    <span class="tag-dot"></span>
+                    Tài khoản user
+                </div>
+
+                {% if auth_mode == 'register' %}
+                <h2>Tạo tài khoản</h2>
+                <p>Đăng ký tài khoản mới để vào trang học và luyện tập ngay.</p>
+                {% else %}
+                <h2>Đăng nhập</h2>
+                <p>Nhập thông tin tài khoản user để bắt đầu học trên LingoCards.</p>
+                {% endif %}
+
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert"><i class="fa-solid fa-circle-exclamation"></i><span>{{ message }}</span></div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                {% if auth_mode == 'register' %}
+                <form method="POST" action="{{ url_for('register') }}" id="authForm">
+                    <div class="form-group" id="grp-username">
+                        <label class="form-label" for="username">Tên đăng nhập</label>
+                        <div class="input-wrap">
+                            <input id="username" type="text" name="username" class="form-control"
+                                placeholder="Nhập tên đăng nhập" required autofocus>
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <div class="input-glow"></div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="grp-password">
+                        <label class="form-label" for="password">Mật khẩu</label>
+                        <div class="input-wrap">
+                            <input id="password" type="password" name="password" class="form-control has-toggle"
+                                placeholder="Nhập mật khẩu" required>
+                            <i class="fa-solid fa-lock input-icon" style="font-size:0.85rem;"></i>
+                            <button type="button" class="pw-toggle" onclick="togglePw('password')"
+                                aria-label="Hiện/ẩn mật khẩu" tabindex="-1">
+                                <i class="fa-regular fa-eye" id="eye-password"></i>
+                            </button>
+                            <div class="input-glow"></div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="grp-confirm">
+                        <label class="form-label" for="confirm_password">Nhập lại mật khẩu</label>
+                        <div class="input-wrap">
+                            <input id="confirm_password" type="password" name="confirm_password"
+                                class="form-control has-toggle" placeholder="Nhập lại mật khẩu" required>
+                            <i class="fa-solid fa-lock input-icon" style="font-size:0.85rem;"></i>
+                            <button type="button" class="pw-toggle" onclick="togglePw('confirm_password')"
+                                aria-label="Hiện/ẩn mật khẩu" tabindex="-1">
+                                <i class="fa-regular fa-eye" id="eye-confirm_password"></i>
+                            </button>
+                            <div class="input-glow"></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="btnSubmit">
+                        <span class="shimmer"></span>
+                        <span class="btn-text">Đăng ký tài khoản</span>
+                        <i class="fa-solid fa-arrow-right arrow"></i>
+                        <span class="spinner"></span>
+                    </button>
+                </form>
+                {% else %}
+                <form method="POST" action="{{ url_for('login') }}" id="authForm">
+                    <div class="form-group" id="grp-username">
+                        <label class="form-label" for="username">Tên đăng nhập</label>
+                        <div class="input-wrap">
+                            <input id="username" type="text" name="username" class="form-control"
+                                placeholder="Nhập tên đăng nhập" required autofocus>
+                            <i class="fa-regular fa-user input-icon"></i>
+                            <div class="input-glow"></div>
+                        </div>
+                    </div>
+                    <div class="form-group" id="grp-password">
+                        <label class="form-label" for="password">Mật khẩu</label>
+                        <div class="input-wrap">
+                            <input id="password" type="password" name="password" class="form-control has-toggle"
+                                placeholder="Nhập mật khẩu" required>
+                            <i class="fa-solid fa-lock input-icon" style="font-size:0.85rem;"></i>
+                            <button type="button" class="pw-toggle" onclick="togglePw('password')"
+                                aria-label="Hiện/ẩn mật khẩu" tabindex="-1">
+                                <i class="fa-regular fa-eye" id="eye-password"></i>
+                            </button>
+                            <div class="input-glow"></div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="btnSubmit">
+                        <span class="shimmer"></span>
+                        <span class="btn-text">Đăng nhập và học ngay</span>
+                        <i class="fa-solid fa-arrow-right arrow"></i>
+                        <span class="spinner"></span>
+                    </button>
+                </form>
+                {% endif %}
+
+                <div class="form-divider">hoặc</div>
+
+                <div class="helper-links">
+                    <a href="{{ url_for('home') }}" class="back-link">
+                        <i class="fa-solid fa-arrow-left"></i> Quay lại trang chủ
+                    </a>
+                </div>
+
+                <div class="kbd-hint">
+                    <span class="kbd">Enter</span> để gửi
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /* ── Password Toggle ── */
+        function togglePw(id) {
+            const input = document.getElementById(id);
+            const icon = document.getElementById('eye-' + id);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        /* ── Focus States ── */
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', () => input.closest('.form-group').classList.add('focused'));
+            input.addEventListener('blur', () => input.closest('.form-group').classList.remove('focused'));
+        });
+
+        /* ── Button Ripple ── */
+        document.getElementById('btnSubmit').addEventListener('mousedown', function (e) {
+            const rect = this.getBoundingClientRect();
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+            ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+            this.appendChild(ripple);
+            ripple.addEventListener('animationend', () => ripple.remove());
+        });
+
+        /* ── Form Submit Loading ── */
+        document.getElementById('authForm').addEventListener('submit', function () {
+            const btn = document.getElementById('btnSubmit');
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            if (!u || !p) return;
+            btn.classList.add('loading');
+        });
+
+        /* ── Mouse Glow ── */
+        const panel = document.querySelector('.login-panel');
+        const glow = document.getElementById('mouseGlow');
+        panel.addEventListener('mousemove', e => {
+            const rect = panel.getBoundingClientRect();
+            glow.style.left = (e.clientX - rect.left) + 'px';
+            glow.style.top = (e.clientY - rect.top) + 'px';
+        });
+
+        /* ── Keyboard Shortcut ── */
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !document.getElementById('btnSubmit').classList.contains('loading')) {
+                const a = document.activeElement;
+                if (a && a.classList.contains('form-control')) {
+                    document.getElementById('authForm').requestSubmit();
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

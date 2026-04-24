@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "word": "Serendipity",
+    "pos": "noun",
+    "pronunciation": "/ˌser.ənˈdɪp.ə.ti/",
+    "meaning": "Sự tình cờ, may mắn (tìm được cái gì đó một cách tình cờ)",
+    "example": "We found this amazing restaurant by serendipity."
+  },
+  {
+    "id": 2,
+    "word": "Ephemeral",
+    "pos": "adjective",
+    "pronunciation": "/ɪˈfem.ər.əl/",
+    "meaning": "Phù du, chóng tàn, tồn tại trong thời gian ngắn",
+    "example": "Fame in the world of rock and pop is largely ephemeral."
+  },
+  {
+    "id": 3,
+    "word": "Eloquent",
+    "pos": "adjective",
+    "pronunciation": "/ˈel.ə.kwənt/",
+    "meaning": "Có khả năng hùng biện, nói năng trôi chảy",
+    "example": "She made an eloquent appeal for action."
+  },
+  {
+    "id": 4,
+    "word": "Resilient",
+    "pos": "adjective",
+    "pronunciation": "/rɪˈzɪl.jənt/",
+    "meaning": "Kiên cường, mau phục hồi",
+    "example": "She's a resilient girl - she won't be unhappy for long."
+  },
+  {
+    "id": 5,
+    "word": "Meticulous",
+    "pos": "adjective",
+    "pronunciation": "/məˈtɪk.jə.ləs/",
+    "meaning": "Tỉ mỉ, cẩn thận, quá chú ý đến chi tiết",
+    "example": "Many hours of meticulous preparation have gone into writing the book."
+  },
+  {
+    "id": 6,
+    "word": "Ubiquitous",
+    "pos": "adjective",
+    "pronunciation": "/juːˈbɪk.wɪ.təs/",
+    "meaning": "Có mặt ở khắp nơi, phổ biến",
+    "example": "Leather is very much in fashion this season, as is the ubiquitous denim."
+  },
+  {
+    "id": 7,
+    "word": "Lucid",
+    "pos": "adjective",
+    "pronunciation": "/ˈluː.sɪd/",
+    "meaning": "Sáng sủa, dễ hiểu, minh mẫn",
+    "example": "She gave a clear and lucid account of her plans for the company's future."
+  },
+  {
+    "id": 8,
+    "word": "Pragmatic",
+    "pos": "adjective",
+    "pronunciation": "/præɡˈmæt.ɪk/",
+    "meaning": "Thực tế, thực dụng",
+    "example": "In business, the pragmatic approach to problems is often more successful than an idealistic one."
+  },
+  {
+    "id": 9,
+    "word": "Nostalgia",
+    "pos": "noun",
+    "pronunciation": "/nɒsˈtæl.dʒə/",
+    "meaning": "Nỗi nhớ nhà, sự hoài niệm",
+    "example": "Hearing that song again filled him with nostalgia."
+  },
+  {
+    "id": 10,
+    "word": "Zealous",
+    "pos": "adjective",
+    "pronunciation": "/ˈzel.əs/",
+    "meaning": "Sốt sắng, hăng hái, nhiệt huyết",
+    "example": "No one was more zealous than Jack in supporting the proposal."
+  }
+]

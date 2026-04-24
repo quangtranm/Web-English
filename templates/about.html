@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LingoCards - Học từ vựng thông minh</title>
+    <style>
+        /* ─── VARIABLES ───────────────────────────────────── */
+        :root {
+            --primary: #0D9488;
+            --secondary: #0F766E;
+            --bg-gradient: linear-gradient(135deg, #0D9488 0%, #0F766E 50%, #111827 100%);
+
+            --text-white: #ffffff;
+            --text-gray: rgba(255, 255, 255, 0.8);
+
+            --card-bg: rgba(255, 255, 255, 0.08);
+            --card-border: 1px solid rgba(255, 255, 255, 0.15);
+            --radius: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-gradient);
+            background-attachment: fixed;
+            color: var(--text-white);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        h1,
+        h2,
+        h3 {
+            font-family: 'Be Vietnam Pro', 'Plus Jakarta Sans', sans-serif;
+            color: var(--text-white);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* ─── COMPONENTS ──────────────────────────────────── */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        /* ─── NAVIGATION (Tối ưu cho chỉ có Logo) ───────── */
+        .navbar {
+            padding: 30px 0;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: center;
+            /* Căn giữa Logo khi không có các nút khác */
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 24px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* ─── HERO MINIMAL ───────────────────────────────── */
+        .hero {
+            text-align: center;
+            padding: 80px 0;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-gray);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* ─── PROCESS CARDS ───────────────────────────────── */
+        .process {
+            padding: 60px 0;
+        }
+
+        .step-card {
+            background: var(--card-bg);
+            border: var(--card-border);
+            border-radius: var(--radius);
+            padding: 30px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: flex-start;
+            gap: 24px;
+            transition: 0.3s;
+        }
+
+        .step-card:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .step-num {
+            font-size: 40px;
+            font-weight: 800;
+            font-family: 'Plus Jakarta Sans';
+            color: rgba(255, 255, 255, 0.1);
+            min-width: 50px;
+        }
+
+        .step-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .step-content p {
+            font-size: 15px;
+            color: var(--text-gray);
+            margin: 0;
+        }
+
+        /* ─── SIMPLE VISUAL REPRESENTATION ─────────────── */
+        .visual-demo {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 60px 0;
+            text-align: center;
+            color: var(--primary);
+        }
+
+        .visual-demo h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+            font-family: 'Plus Jakarta Sans';
+        }
+
+        .visual-demo p {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .simple-card-mockup {
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .mockup-word {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--dark);
+            font-family: 'Plus Jakarta Sans';
+        }
+
+        .mockup-mean {
+            color: #64748b;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        /* ─── FEATURES (Clean List) ─────────────────────── */
+        .features {
+            padding: 40px 0 80px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+            text-align: center;
+        }
+
+        .feature-item i {
+            font-size: 32px;
+            color: white;
+            margin-bottom: 16px;
+            opacity: 0.9;
+        }
+
+        .feature-item h4 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            font-size: 13px;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+
+        /* ─── FOOTER ─────────────────────────────────────── */
+        footer {
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-gray);
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .step-card {
+                flex-direction: column;
+                text-align: center;
+                align-items: center;
+            }
+
+            .step-num {
+                margin-bottom: 10px;
+                font-size: 30px;
+            }
+        }
+    </style>
+    {% include '_head_fonts.html' %}
+</head>
+
+<body>
+
+    <!-- Navigation: Chỉ còn Logo -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="{{ url_for('home') }}" class="logo">
+                <i class="fas fa-layer-group"></i> LingoCards
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+
+        <!-- Hero -->
+        <section class="hero">
+            <h1>Học từ vựng thông minh<br>với LingoCards.</h1>
+            <p>Hệ thống lặp lại ngắt quãng giúp bạn ghi nhớ từ vựng lâu dài mà không cần học vẹt.</p>
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Bắt đầu học ngay</a>
+        </section>
+
+        <!-- Simple Visual Demo -->
+        <div class="visual-demo">
+            <h3>Flashcard trực quan</h3>
+            <p>Thông tin cô đọng, dễ đọc, dễ nhớ.</p>
+            <div class="simple-card-mockup">
+                <span
+                    style="font-size:12px; font-weight:700; color:#0D9488; background:rgba(13, 148, 136, 0.1); padding:2px 8px; border-radius:4px;">NOUN</span>
+                <div class="mockup-word">Epiphany</div>
+                <div class="mockup-mean">Sự khai ngộ / Tỉnh ngộ</div>
+                <div style="margin-top:15px; font-size:12px; color:#94a3b8;">
+                    <i class="fas fa-volume-up" style="margin-right:5px;"></i> Nghe phát âm
+                </div>
+            </div>
+        </div>
+
+        <!-- Process Steps -->
+        <section class="process">
+
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <div class="step-content">
+                    <h3>Đánh giá mức độ</h3>
+                    <p>Hệ thống sẽ hỏi bạn mức độ bạn nhớ từ vựng đó để tính toán thời điểm ôn tập tối ưu.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <div class="step-content">
+                    <h3>Lên lịch thông minh</h3>
+                    <p>Từ vựng sẽ xuất hiện đúng lúc bạn sắp quên, giúp kích hoạt lại trí nhớ một cách tự nhiên.</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <div class="step-content">
+                    <h3>Kiểm tra chủ động</h3>
+                    <p>Thay vì đọc lại, bạn phải nhớ nghĩa của từ. Quá trình truy xuất này giúp nhớ sâu hơn.</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <i class="fas fa-bolt"></i>
+                    <h4>Nhanh chóng</h4>
+                    <p>Chỉ 15 phút/ngày</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-check"></i>
+                    <h4>Chính xác</h4>
+                    <p>Thuật toán tối ưu</p>
+                </div>
+                <div class="feature-item">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Mọi lúc</h4>
+                    <p>Học trên mọi thiết bị</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 LingoCards. Tất cả các quyền được bảo lưu.</p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

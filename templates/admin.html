@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulary Management — LingoCards Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    {% include '_admin_styles.html' %}
+    {% include '_head_fonts.html' %}
+</head>
+<body>
+
+<button class="mob-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></button>
+<div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+{% include '_admin_sidebar.html' %}
+
+<main class="main">
+    <header class="top-bar">
+        <h2><i class="fa-solid fa-book-bookmark" style="color: var(--primary)"></i> Vocabulary Management</h2>
+        <div style="display: flex; gap: 1rem;">
+            <span class="badge badge-primary">Admin Session</span>
+        </div>
+    </header>
+
+    <div class="content-area">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}"><i class="fa-solid fa-circle-info"></i> {{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- Quick Actions & Stats -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-bottom: 2.5rem;">
+            
+            <!-- Card: Bulk Import -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-p"><i class="fa-solid fa-file-import"></i></div>
+                    <div class="card-title">
+                        <h3>Bulk Import</h3>
+                        <p>Upload Excel or CSV files</p>
+                    </div>
+                </div>
+                <form action="/admin/import_csv" method="POST" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Category Target</label>
+                        <select name="category_id" class="form-input" required>
+                            <option value="">Select a category...</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Select File</label>
+                        <input type="file" name="file" accept=".csv,.xlsx,.txt" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center;">
+                        <i class="fa-solid fa-upload"></i> Start Upload
+                    </button>
+                </form>
+            </div>
+
+            <!-- Card: Categories Management -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-s"><i class="fa-solid fa-folder-tree"></i></div>
+                    <div class="card-title">
+                        <h3>Categories</h3>
+                        <p>Manage vocabulary groups</p>
+                    </div>
+                </div>
+                <form action="/admin/add_category" method="POST" style="margin-bottom: 1.5rem;">
+                    <div style="display: flex; gap: 0.75rem;">
+                        <input type="text" name="name" class="form-input" placeholder="New category name..." required>
+                        <button type="submit" class="btn btn-primary" style="padding: 0.85rem;"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </form>
+                <div style="max-height: 180px; overflow-y: auto; padding-right: 0.5rem;">
+                    {% for cat in categories %}
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: var(--bg-main); border-radius: 10px; margin-bottom: 0.5rem;">
+                        <span style="font-weight: 700; font-size: 0.9rem;">{{ cat.name }}</span>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="badge-count">{{ cat.vocabularies.count() }}</span>
+                            <a href="/admin/delete_category/{{ cat.id }}" class="action-btn btn-del" onclick="return confirm('Delete category?')"><i class="fa-solid fa-trash-can" style="font-size: 0.8rem"></i></a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Data Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <div class="table-title">Recent Vocabulary <span class="badge-count">{{ vocabularies|length }}</span></div>
+                <div style="position: relative;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--text-faint);"></i>
+                    <input type="text" class="form-input" placeholder="Search vocabulary..." style="padding-left: 3rem; width: 300px;" id="vSearch" oninput="filterVocab()">
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Word Details</th>
+                        <th>Definition</th>
+                        <th>Category</th>
+                        <th style="width: 100px; text-align: center;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="vBody">
+                    {% for vocab in vocabularies %}
+                    <tr class="v-row">
+                        <td>
+                            <div style="font-weight: 800; color: var(--text-main); font-size: 1.05rem;">{{ vocab.word }} <span class="badge-primary" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px;">{{ vocab.pos }}</span></div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; font-family: 'Inter', sans-serif;">{{ vocab.pronunciation }}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text-secondary);">{{ vocab.meaning }}</div>
+                            <div style="font-size: 0.8rem; color: var(--text-faint); margin-top: 4px; font-style: italic;">"{{ vocab.example }}"</div>
+                        </td>
+                        <td><span class="badge badge-success"><i class="fa-solid fa-tag"></i> {{ vocab.category.name }}</span></td>
+                        <td style="text-align: center;">
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                <a href="/admin/delete_vocabulary/{{ vocab.id }}" class="action-btn btn-del" onclick="return confirm('Delete this word?')"><i class="fa-solid fa-trash-can"></i></a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+        document.getElementById('overlay').classList.toggle('open');
+    }
+
+    function filterVocab() {
+        const q = document.getElementById('vSearch').value.toLowerCase();
+        document.querySelectorAll('.v-row').forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+</script>
+
+</body>
+</html>

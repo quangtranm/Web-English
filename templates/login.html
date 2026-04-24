@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - LingoCards</title>    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  {% include '_head_fonts.html' %}
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            min-height: 100vh;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            background: #F3F4F8;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* ── Ambient Background ── */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(13, 148, 136, 0.12), transparent 70%);
+            top: -180px;
+            left: -120px;
+            animation: ambientFloat 18s ease-in-out infinite alternate;
+        }
+
+        body::after {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.08), transparent 70%);
+            bottom: -150px;
+            right: -100px;
+            animation: ambientFloat 22s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes ambientFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate(40px, 30px) scale(1.1);
+            }
+
+            100% {
+                transform: translate(-20px, -15px) scale(0.95);
+            }
+        }
+
+        /* ── Card Container ── */
+        .auth-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1080px;
+            display: grid;
+            grid-template-columns: 1.15fr 1fr;
+            background: rgba(255, 255, 255, 0.82);
+            backdrop-filter: blur(24px) saturate(1.4);
+            -webkit-backdrop-filter: blur(24px) saturate(1.4);
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow:
+                0 4px 6px rgba(0, 0, 0, 0.02),
+                0 12px 24px rgba(0, 0, 0, 0.04),
+                0 32px 64px rgba(13, 148, 136, 0.06);
+            animation: cardReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        @keyframes cardReveal {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.97);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ── Left Panel ── */
+        .auth-left {
+            padding: 3.5rem 3rem;
+            background: linear-gradient(160deg,
+                    rgba(13, 148, 136, 0.04) 0%,
+                    rgba(248, 249, 251, 0.8) 50%,
+                    rgba(255, 255, 255, 0.5) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Subtle grid pattern */
+        .auth-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(13, 148, 136, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(13, 148, 136, 0.02) 1px, transparent 1px);
+            background-size: 32px 32px;
+            pointer-events: none;
+        }
+
+        /* Decorative glow */
+        .auth-left::after {
+            content: '';
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: radial-gradient(circle, rgba(13, 148, 136, 0.08), transparent 70%);
+            bottom: -80px;
+            right: -60px;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+        }
+
+        .brand-header:hover {
+            transform: translateX(4px);
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #0D9488, #14B8A6);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            box-shadow:
+                0 4px 12px rgba(13, 148, 136, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15), transparent);
+            border-radius: 14px 14px 0 0;
+        }
+
+        .brand-text h2 {
+            margin: 0;
+            font-family: 'Be Vietnam Pro', 'Poppins', sans-serif;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1E293B;
+            letter-spacing: -0.02em;
+        }
+
+        .brand-text small {
+            display: block;
+            font-size: 0.78rem;
+            color: #94A3B8;
+            font-weight: 500;
+            margin-top: 1px;
+        }
+
+        .auth-left h1 {
+            font-family: 'Be Vietnam Pro', 'Poppins', sans-serif;
+            font-size: 2.6rem;
+            font-weight: 800;
+            margin: 0 0 1.1rem 0;
+            line-height: 1.15;
+            letter-spacing: -0.03em;
+            color: #0F172A;
+            position: relative;
+            z-index: 1;
+        }
+
+        .auth-left h1 span {
+            background: linear-gradient(135deg, #0D9488, #14B8A6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-left>p {
+            font-size: 1rem;
+            line-height: 1.8;
+            margin: 0 0 2.5rem 0;
+            color: #64748B;
+            position: relative;
+            z-index: 1;
+            max-width: 400px;
+        }
+
+        .features {
+            display: flex;
+            flex-direction: column;
+            gap: 1.15rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature {
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+            padding: 0.6rem 0;
+            transition: transform 0.3s ease;
+        }
+
+        .feature:hover {
+            transform: translateX(4px);
+        }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            background: rgba(13, 148, 136, 0.08);
+            border: 1px solid rgba(13, 148, 136, 0.08);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #0D9488;
+            flex-shrink: 0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature:hover .feature-icon {
+            background: rgba(13, 148, 136, 0.14);
+            border-color: rgba(13, 148, 136, 0.15);
+            transform: scale(1.05);
+        }
+
+        .feature-text h4 {
+            margin: 0 0 0.2rem 0;
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .feature-text p {
+            margin: 0;
+            font-size: 0.83rem;
+            color: #94A3B8;
+            line-height: 1.5;
+        }
+
+        /* ── Right Panel ── */
+        .auth-right {
+            padding: 3.5rem 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 370px;
+        }
+
+        .form-header {
+            margin-bottom: 2.2rem;
+        }
+
+        .form-header .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.4rem 0.85rem;
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.08), rgba(20, 184, 166, 0.08));
+            border: 1px solid rgba(13, 148, 136, 0.12);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #0D9488;
+            margin-bottom: 1.2rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+        }
+
+        .form-header .badge i {
+            font-size: 0.7rem;
+        }
+
+        .form-header h2 {
+            margin: 0 0 0.4rem 0;
+            font-family: 'Be Vietnam Pro', 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: #0F172A;
+            letter-spacing: -0.02em;
+        }
+
+        .form-header p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #94A3B8;
+            line-height: 1.5;
+        }
+
+        /* ── Alert ── */
+        .alert {
+            padding: 0.9rem 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            animation: alertShake 0.5s ease;
+        }
+
+        @keyframes alertShake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            15% {
+                transform: translateX(-6px);
+            }
+
+            30% {
+                transform: translateX(5px);
+            }
+
+            45% {
+                transform: translateX(-4px);
+            }
+
+            60% {
+                transform: translateX(3px);
+            }
+
+            75% {
+                transform: translateX(-1px);
+            }
+        }
+
+        .alert-danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.1));
+            border: 1px solid rgba(239, 68, 68, 0.15);
+            color: #B91C1C;
+        }
+
+        .alert-danger i {
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        /* ── Form Fields ── */
+        .form-group {
+            margin-bottom: 1.35rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 650;
+            color: #475569;
+            letter-spacing: 0.01em;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #B0BEC5;
+            font-size: 0.95rem;
+            pointer-events: none;
+            transition: color 0.25s ease;
+            z-index: 2;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 2.85rem;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            font-weight: 450;
+            border: 2px solid #E8ECF1;
+            border-radius: 14px;
+            background: #FAFBFC;
+            color: #0F172A;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input::placeholder {
+            color: #B8C4CE;
+            font-weight: 400;
+        }
+
+        .form-input:hover {
+            border-color: #D1D9E2;
+            background: #FFFFFF;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #0D9488;
+            background: #FFFFFF;
+            box-shadow:
+                0 0 0 4px rgba(13, 148, 136, 0.08),
+                0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .form-input:focus~.input-icon {
+            color: #0D9488;
+        }
+
+        /* Password toggle */
+        .password-toggle {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: #B0BEC5;
+            cursor: pointer;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+            z-index: 2;
+        }
+
+        .password-toggle:hover {
+            background: rgba(13, 148, 136, 0.06);
+            color: #0D9488;
+        }
+
+        .form-input.has-toggle {
+            padding-right: 3rem;
+        }
+
+        /* ── Divider ── */
+        .form-divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.6rem 0;
+            color: #CBD5E1;
+            font-size: 0.78rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .form-divider::before,
+        .form-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #E2E8F0, transparent);
+        }
+
+        /* ── Submit Button ── */
+        .btn-login {
+            width: 100%;
+            padding: 0.95rem 1.5rem;
+            background: linear-gradient(135deg, #0D9488 0%, #14B8A6 100%);
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow:
+                0 4px 14px rgba(13, 148, 136, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        .btn-login::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255, 255, 255, 0.15) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 24px rgba(13, 148, 136, 0.3),
+                0 2px 8px rgba(20, 184, 166, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-login:hover::after {
+            transform: translateX(100%);
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+            box-shadow:
+                0 2px 8px rgba(13, 148, 136, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-login i {
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-login:hover i {
+            transform: translateX(3px);
+        }
+
+        /* ── Help Links ── */
+        .form-help {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .form-help a {
+            color: #94A3B8;
+            font-size: 0.84rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .form-help a:hover {
+            color: #0D9488;
+        }
+
+        .form-help a i {
+            font-size: 0.75rem;
+            transition: transform 0.25s ease;
+        }
+
+        .form-help a:first-child:hover i {
+            transform: translateX(-3px);
+        }
+
+        /* ── Stagger Animations ── */
+        .form-wrapper>* {
+            animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .form-wrapper>*:nth-child(1) {
+            animation-delay: 0.15s;
+        }
+
+        .form-wrapper>*:nth-child(2) {
+            animation-delay: 0.22s;
+        }
+
+        .form-wrapper>*:nth-child(3) {
+            animation-delay: 0.29s;
+        }
+
+        .form-wrapper>*:nth-child(4) {
+            animation-delay: 0.36s;
+        }
+
+        .form-wrapper>*:nth-child(5) {
+            animation-delay: 0.40s;
+        }
+
+        .form-wrapper>*:nth-child(6) {
+            animation-delay: 0.44s;
+        }
+
+        .form-wrapper>*:nth-child(7) {
+            animation-delay: 0.50s;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(14px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Left Side Stagger ── */
+        .auth-left>* {
+            animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .auth-left>*:nth-child(1) {
+            animation-delay: 0.05s;
+        }
+
+        .auth-left>*:nth-child(2) {
+            animation-delay: 0.12s;
+        }
+
+        .auth-left>*:nth-child(3) {
+            animation-delay: 0.20s;
+        }
+
+        .auth-left>*:nth-child(4) {
+            animation-delay: 0.28s;
+        }
+
+        .features .feature:nth-child(1) {
+            animation: fadeUp 0.5s 0.34s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .features .feature:nth-child(2) {
+            animation: fadeUp 0.5s 0.40s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .features .feature:nth-child(3) {
+            animation: fadeUp 0.5s 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .auth-container {
+                grid-template-columns: 1fr;
+                max-width: 500px;
+            }
+
+            .auth-left {
+                padding: 2.5rem 2rem;
+            }
+
+            .auth-right {
+                padding: 2.5rem 2rem;
+            }
+
+            .auth-left h1 {
+                font-size: 2rem;
+            }
+
+            .auth-left>p {
+                margin-bottom: 2rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .auth-container {
+                border-radius: 20px;
+                max-width: 100%;
+            }
+
+            .auth-left {
+                padding: 2rem 1.5rem;
+            }
+
+            .auth-right {
+                padding: 2rem 1.5rem;
+            }
+
+            .auth-left h1 {
+                font-size: 1.65rem;
+            }
+
+            .auth-left>p {
+                font-size: 0.92rem;
+            }
+
+            .form-wrapper {
+                max-width: 100%;
+            }
+
+            .form-header h2 {
+                font-size: 1.5rem;
+            }
+
+            .features {
+                gap: 0.9rem;
+            }
+
+            .feature {
+                padding: 0.3rem 0;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .form-help {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.6rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <!-- Left Side - Branding & Features -->
+        <div class="auth-left">
+            <a href="{{ url_for('home') }}" class="brand-header">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-layer-group"></i>
+                </div>
+                <div class="brand-text">
+                    <h2>LingoCards</h2>
+                    <small>Học từ vựng hiệu quả</small>
+                </div>
+            </a>
+
+            <h1>Quản lý<br><span>nội dung học</span></h1>
+            <p>Đăng nhập để truy cập trang quản trị, thêm chủ đề mới, cập nhật từ vựng và quản lý toàn bộ dữ liệu học.
+            </p>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-folder-tree"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h4>Quản lý chủ đề</h4>
+                        <p>Tạo, cập nhật và sắp xếp các nhóm từ vựng theo mục tiêu học.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-file-import"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h4>Nhập dữ liệu nhanh</h4>
+                        <p>Hỗ trợ thêm từ thủ công hoặc import từ file CSV và Excel.</p>
+                    </div>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="feature-text">
+                        <h4>Kiểm soát nội dung</h4>
+                        <p>Chỉ những người được phép mới có thể thay đổi dữ liệu.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="auth-right">
+            <div class="form-wrapper">
+                <div class="form-header">
+                    <span class="badge">
+                        <i class="fa-solid fa-lock-open"></i>
+                        Admin Panel
+                    </span>
+                    <h2>Đăng nhập</h2>
+                    <p>Nhập thông tin tài khoản quản trị để tiếp tục.</p>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span>{{ error }}</span>
+                </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('admin') }}">
+                    <div class="form-group">
+                        <label class="form-label" for="username">Tên đăng nhập</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="username" name="username" class="form-input"
+                                placeholder="Nhập tên đăng nhập" required autocomplete="username">
+                            <i class="fa-regular fa-user input-icon"></i>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password">Mật khẩu</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" class="form-input has-toggle"
+                                placeholder="Nhập mật khẩu" required autocomplete="current-password">
+                            <i class="fa-solid fa-key input-icon" style="font-size:0.85rem;"></i>
+                            <button type="button" class="password-toggle" onclick="togglePassword()"
+                                aria-label="Hiện/ẩn mật khẩu" tabindex="-1">
+                                <i class="fa-regular fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-login">
+                        <span>Đăng nhập</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+
+                    <div class="form-divider">hoặc</div>
+
+                    <div class="form-help">
+                        <a href="{{ url_for('home') }}">
+                            <i class="fa-solid fa-arrow-left"></i>
+                            Quay lại trang chủ
+                        </a>
+                        <a href="{{ url_for('about') }}">
+                            Về LingoCards
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const input = document.getElementById('password');
+            const icon = document.getElementById('eyeIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        /* Auto-focus username field */
+        document.getElementById('username').focus();
+    </script>
+</body>
+
+</html>
